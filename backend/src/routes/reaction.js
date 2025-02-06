@@ -1,47 +1,44 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
+const db = requestAnimationFrame('../config/db.js')
 
 const router = express.Router();
 
-// In-memory storage for sessions (for now, but consider using a database later)
-const sessions = {};
+// Start new game session. Returns the top 10 times to beat
+router.post('/start', async (req, res) => {
+    console.log("\n\nReaction Game Start");
 
-// Start new game session
-router.post('/start', (req, res) => {
-  console.log("\n\nReaction Game Start")
-  const sessionId = uuidv4();
+    try {
+        const [leaderboard] = await db.query('SELECT reaction_time FROM reaction_times ORDER BY reaction_time DESC LIMIT 10;');
 
-  sessions[sessionId] = {
-    bestReactionTime: null
-  };
-
-  return res.json({ sessionId });
+        return res.json({ leaderboard });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error: "Failed to start reaction_time"})
+    }
 });
 
-// End game session. Frontend calculates the reaction time -- lower latency
-router.post('/end', (req, res) => {
-  console.log("\n\nReaction Game End")
+// End game session. Frontend calculates the reaction time
+router.post('/end', async (req, res) => {
+    console.log("\n\nReaction Game End");
 
-  const { sessionId, reactionTime } = req.body;
+    const { username, reactionTime } = req.body;
 
-  if (!sessionId || !reactionTime) {
-    return res.status(400).json({ message: 'Session ID and reaction time are required.' });
-  }
+    if (!username || !reactionTime) {
+        return res.status(400).json({ message: 'Username and reaction time are required.' });
+    }
 
-  const session = sessions[sessionId];
+    try {
+        const [leaderboard] = await db.query('SELECT reaction_time FROM reaction_times ORDER BY reaction_time DESC LIMIT 10;');
 
-  if (!session) {
-    return res.status(404).json({ message: 'Session not found. Start game first.' });
-  }
+        if (leaderboard.length < 10 || reactionTime < leaderboard[leaderboard.length - 1].reactionTime) {
+            await db.query('INSERT INTO reaction_times (username, reaction_time) VALUES (?, ?)', [username, reactionTime]);
+        }
 
-  if (session.bestReactionTime === null || reactionTime < session.bestReactionTime) {
-    session.bestReactionTime = reactionTime;
-  }
-
-  return res.json({ 
-    message: 'Reaction time recorded.', 
-    bestReactionTime: session.bestReactionTime 
-  });
+        res.json({ message: 'Reaction time recorded.' });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error: "Failed to record reaction_time"})
+    }
 });
 
 // Export Reaction endpoints
