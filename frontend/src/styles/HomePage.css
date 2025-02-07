@@ -1,0 +1,37 @@
+.home-container {
+  padding: 50px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.game-selection {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.game-button {
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #b0d4f5;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 8px;
+}
+
+.game-button:hover {
+  background-color: #7bb8eb;
+}
