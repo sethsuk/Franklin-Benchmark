@@ -1,24 +1,20 @@
-// server.js
-const dotenv = require('dotenv');
-const express = require('express');
-const cors = require('cors');
+const app = require('./src/app');
+const initializeDatabase = require('./src/config/initDB');
 
-dotenv.config();
+// Uncomment if we need custom env
+// const dotenv = require('dotenv');
 
-// Initialize express
-const app = express();
-const PORT = process.env.PORT || 5000; // Use an environment variable or default to 5000
+// dotenv.config();
 
-// Middleware
-app.use(cors());
-app.use(express.json()); // Parse JSON bodies (for POST/PUT requests)
+// Initialize tables in DB
+initializeDatabase();
 
-// Example route
+const PORT = process.env.PORT || 5000;
+
 app.get('/', (req, res) => {
-  res.send('Hello from the backend!');
+  res.send('Welcome to Franklin Benchmark!');
 });
 
-// Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
