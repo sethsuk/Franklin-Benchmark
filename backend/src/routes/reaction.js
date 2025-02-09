@@ -8,7 +8,7 @@ router.post('/leaderboard', async (req, res) => {
     console.log("\n\Reaction Leaderboard Called");
 
     try {
-        const [leaderboard] = await db.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time DESC LIMIT 10;');
+        const [leaderboard] = await db.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
 
         return res.json({ leaderboard });
     } catch (error) {
