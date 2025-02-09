@@ -1,14 +1,14 @@
 const express = require('express');
-const db = requestAnimationFrame('../config/db.js')
+const db = require('../config/db.js');
 
 const router = express.Router();
 
 // Start new game session. Returns the top 10 times to beat
-router.post('/start', async (req, res) => {
-    console.log("\n\nReaction Game Start");
+router.post('/leaderboard', async (req, res) => {
+    console.log("\n\Reaction Leaderboard Called");
 
     try {
-        const [leaderboard] = await db.query('SELECT reaction_time FROM reaction_times ORDER BY reaction_time DESC LIMIT 10;');
+        const [leaderboard] = await db.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
 
         return res.json({ leaderboard });
     } catch (error) {
@@ -17,9 +17,10 @@ router.post('/start', async (req, res) => {
     }
 });
 
-// End game session. Frontend calculates the reaction time
-router.post('/end', async (req, res) => {
-    console.log("\n\nReaction Game End");
+// Record game session. Frontend calculates the reaction time
+// Takes in username and reaction time
+router.post('/record-time', async (req, res) => {
+    console.log("\n\nReaction Game Recorded");
 
     const { username, reactionTime } = req.body;
 
