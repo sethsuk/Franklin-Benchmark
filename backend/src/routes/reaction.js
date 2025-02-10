@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../config/db.js');
+const pool = require('../config/db.js');
 
 const router = express.Router();
 
@@ -8,12 +8,13 @@ router.post('/leaderboard', async (req, res) => {
     console.log("\n\Reaction Leaderboard Called");
 
     try {
-        const [leaderboard] = await db.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
+        const results = await pool.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
+        const leaderboard = results.rows;
 
         return res.json({ leaderboard });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({error: "Failed to start reaction_time"})
+        return res.status(500).json({error: "Failed to retrieve leaderboard"})
     }
 });
 
@@ -29,10 +30,11 @@ router.post('/record-time', async (req, res) => {
     }
 
     try {
-        const [leaderboard] = await db.query('SELECT reaction_time FROM reaction_times ORDER BY reaction_time DESC LIMIT 10;');
+        const results = await pool.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
+        const leaderboard = results.rows;
 
         if (leaderboard.length < 10 || reactionTime < leaderboard[leaderboard.length - 1].reactionTime) {
-            await db.query('INSERT INTO reaction_times (username, reaction_time) VALUES (?, ?)', [username, reactionTime]);
+            await pool.query('INSERT INTO reaction_times (username, reaction_time) VALUES ($1, $2)', [username, reactionTime]);
         }
 
         res.json({ message: 'Reaction time recorded.' });
