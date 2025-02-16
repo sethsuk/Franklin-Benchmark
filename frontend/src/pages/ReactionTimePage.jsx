@@ -11,22 +11,37 @@ function ReactionTimePage() {
 
   // this fetches the leaderboard from the backend
   const fetchLeaderboard = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/reaction/leaderboard");
-      const data = await response.json();
+    console.log("fetchLeaderboard() called!");
   
-      // Ensure the correct data structure
-      setLeaderboard(data.leaderboard || data); 
+    try {
+      const response = await fetch("http://localhost:5000/reaction/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      console.log("API Response Status:", response.status);
+  
+      const data = await response.json();
+      console.log("Leaderboard Data:", data);
+  
+      if (data.leaderboard) {
+        setLeaderboard(data.leaderboard);
+      } else {
+        setLeaderboard([]);
+      }
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
     }
-  };
+  };  
 
   // fetching the leaderboard when the component mounts
   useEffect(() => {
-    fetchLeaderboard();
+    setTimeout(() => {
+      console.log("Delayed useEffect triggered! Fetching leaderboard...");
+      fetchLeaderboard();
+    }, 1000);
   }, []);
-
+    
   useEffect(() => {
     if (gameState === 'ready') {
       const randomDelay = Math.floor(Math.random() * 3000) + 1000;
