@@ -7,6 +7,25 @@ function ReactionTimePage() {
   const [startTime, setStartTime] = useState(0);
   const [name, setName] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  // this fetches the leaderboard from the backend
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/reaction/leaderboard");
+      const data = await response.json();
+  
+      // Ensure the correct data structure
+      setLeaderboard(data.leaderboard || data); 
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+    }
+  };
+
+  // fetching the leaderboard when the component mounts
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
 
   useEffect(() => {
     if (gameState === 'ready') {
@@ -27,15 +46,28 @@ function ReactionTimePage() {
     }
   };
 
-  const handleSubmit = () => {
-    if (name.trim() !== '') {
-      setSubmitted(true);
-      setTimeout(() => {
-        setGameState('waiting');
-        setReactionTime(null);
-        setName('');
-        setSubmitted(false);
-      }, 2000);
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      alert("Please enter your name before submitting!");
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/reaction/record-time", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: name, reactionTime }),
+      });
+  
+      if (response.ok) {
+        console.log("Score submitted!");
+        setSubmitted(true);
+        fetchLeaderboard(); // this refreshes the leaderboard after the user clicks submit
+      } else {
+        console.error("Failed to submit score");
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
@@ -80,6 +112,22 @@ function ReactionTimePage() {
           )}
         </div>
       )}
+
+      {}
+      <div className="leaderboard-container">
+        <h2>Leaderboard</h2>
+        <ul>
+          {leaderboard.length > 0 ? (
+            leaderboard.map((player, index) => (
+              <li key={index}>
+                {index + 1}. <strong>{player.username}</strong> - {player.reaction_time} ms
+              </li>
+            ))
+          ) : (
+            <p>No scores available yet.</p>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
