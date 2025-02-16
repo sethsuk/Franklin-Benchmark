@@ -8,39 +8,53 @@ function ReactionTimePage() {
   const [name, setName] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [timeoutId, setTimeoutId] = useState(null);
 
-  // this fetches the leaderboard from the backend
+  // Fetch leaderboard from backend
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch("http://localhost:5000/reaction/leaderboard");
+      console.log("calling the leaderboard api from frontend");
+      const response = await fetch("http://localhost:5000/reaction/leaderboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
       const data = await response.json();
-  
-      // Ensure the correct data structure
-      setLeaderboard(data.leaderboard || data); 
+      setLeaderboard(data.leaderboard || data); // Ensure proper structure
+      console.log(leaderboard);
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
     }
   };
 
-  // fetching the leaderboard when the component mounts
   useEffect(() => {
+    console.log("\n\nuse effect triggered\n\n");
     fetchLeaderboard();
   }, []);
 
   useEffect(() => {
     if (gameState === 'ready') {
-      const randomDelay = Math.floor(Math.random() * 3000) + 1000;
-      setTimeout(() => {
-        setGameState('clicked');
+      const delay = Math.floor(Math.random() * 3000) + 1000;
+      const id = setTimeout(() => {
+        setGameState('go');
         setStartTime(Date.now());
-      }, randomDelay);
+      }, delay);
+      setTimeoutId(id);
     }
+
+    return () => clearTimeout(timeoutId); // Cleanup on unmount
   }, [gameState]);
 
   const handleClick = () => {
     if (gameState === 'waiting') {
       setGameState('ready');
-    } else if (gameState === 'clicked') {
+    } else if (gameState === 'ready') {
+      // Penalize early clicks
+      setGameState('waiting');
+      alert("Too early! Click to try again.");
+    } else if (gameState === 'go') {
       setReactionTime(Date.now() - startTime);
       setGameState('submit');
     }
@@ -51,18 +65,20 @@ function ReactionTimePage() {
       alert("Please enter your name before submitting!");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:5000/reaction/record-time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: name, reactionTime }),
       });
-  
+
+      console.log(response);
+
       if (response.ok) {
         console.log("Score submitted!");
         setSubmitted(true);
-        fetchLeaderboard(); // this refreshes the leaderboard after the user clicks submit
+        fetchLeaderboard();
       } else {
         console.error("Failed to submit score");
       }
@@ -87,7 +103,7 @@ function ReactionTimePage() {
         </div>
       )}
 
-      {gameState === 'clicked' && (
+      {gameState === 'go' && (
         <div className="reaction-box green" onClick={handleClick}>
           {reactionTime ? `${reactionTime} ms` : 'Click!'}
         </div>
@@ -113,20 +129,19 @@ function ReactionTimePage() {
         </div>
       )}
 
-      {}
       <div className="leaderboard-container">
         <h2>Leaderboard</h2>
-        <ul>
-          {leaderboard.length > 0 ? (
-            leaderboard.map((player, index) => (
+        {leaderboard.length > 0 ? (
+          <ul>
+            {leaderboard.map((player, index) => (
               <li key={index}>
                 {index + 1}. <strong>{player.username}</strong> - {player.reaction_time} ms
               </li>
-            ))
-          ) : (
-            <p>No scores available yet.</p>
-          )}
-        </ul>
+            ))}
+          </ul>
+        ) : (
+          <p>No scores available yet.</p>
+        )}
       </div>
     </div>
   );
