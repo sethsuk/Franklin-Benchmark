@@ -1,7 +1,7 @@
 const express = require('express');
 const pool = require('../config/db.js');
 
-const router = express.Router();
+const router = express.Router(); // ✅ Correctly defining router
 
 // Start new game session. Returns the top 10 times to beat
 router.post('/leaderboard', async (req, res) => {

@@ -12,28 +12,34 @@ function ReactionTimePage() {
 
   // Fetch leaderboard from backend
   const fetchLeaderboard = async () => {
+    console.log("fetchLeaderboard() called!");
+  
     try {
-      console.log("calling the leaderboard api from frontend");
       const response = await fetch("http://localhost:5000/reaction/leaderboard", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        }
+        headers: { "Content-Type": "application/json" },
       });
-
+  
+      console.log("API Response Status:", response.status);
+  
       const data = await response.json();
-      setLeaderboard(data.leaderboard || data); // Ensure proper structure
-      console.log(leaderboard);
+      console.log("Leaderboard Data:", data);
+  
+      if (data.leaderboard) {
+        setLeaderboard(data.leaderboard);
+      } else {
+        setLeaderboard([]);
+      }
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
     }
-  };
+  };  
 
   useEffect(() => {
     console.log("\n\nuse effect triggered\n\n");
     fetchLeaderboard();
   }, []);
-
+    
   useEffect(() => {
     if (gameState === 'ready') {
       const delay = Math.floor(Math.random() * 3000) + 1000;
