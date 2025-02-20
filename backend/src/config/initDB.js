@@ -4,8 +4,7 @@ async function initializeDatabase() {
     try {
         await pool.query(` 
             CREATE TABLE IF NOT EXISTS reaction_scores (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(255) NOT NULL,
+                username VARCHAR(255) NOT NULL PRIMARY KEY,
                 reaction_time INT NOT NULL,
                 time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
