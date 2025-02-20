@@ -8,29 +8,12 @@ router.get('/leaderboard', async (req, res) => {
     console.log("\n\Reaction Leaderboard Called");
 
     const username = req.query.username;
-    let userRank = null;
 
     try {
         const results = await pool.query('SELECT username, reaction_time AS "reactionTime" FROM reaction_scores ORDER BY reaction_time, time LIMIT 10;');
         const leaderboard = results.rows;
-
-        if (username) {
-            const userRankResults = await pool.query(`
-                WITH ranked AS (
-                    SELECT username, reaction_time,
-                    RANK() OVER (ORDER BY reaction_time, time) AS rank
-                    FROM reaction_scores
-                )
-                SELECT rank FROM ranked WHERE username = $1;
-                `, [username]);
-
-            // Set userRank if found, otherwise return -1
-            userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
-        } else {
-            userRank = -1;
-        }
         
-        return res.status(200).json({ leaderboard, rank: Number(userRank) });
+        return res.status(200).json({ leaderboard});
     } catch (error) {
         console.log(error);
         return res.status(500).json({error: "Failed to retrieve leaderboard"})
@@ -43,6 +26,7 @@ router.post('/record-time', async (req, res) => {
     console.log("\n\nReaction Game Recorded", req.body);
 
     const { username, reactionTime } = req.body;
+    let userRank = null;
 
     if (!username || !reactionTime) {
         return res.status(400).json({ message: 'Username and reaction time are required.' });
@@ -63,7 +47,19 @@ router.post('/record-time', async (req, res) => {
             `, [username]);
 
 
-        res.json({ highScore: highScoreResults.rows[0].reactionTime});
+        const userRankResults = await pool.query(`
+            WITH ranked AS (
+                SELECT username, reaction_time,
+                RANK() OVER (ORDER BY reaction_time, time) AS rank
+                FROM reaction_scores
+            )
+            SELECT rank FROM ranked WHERE username = $1;
+            `, [username]);
+
+        // Set userRank if found, otherwise return -1
+        userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
+
+        res.json({ highScore: highScoreResults.rows[0].reactionTime, rank: Number(userRank) });
     } catch (error) {
         console.log(error);
         return res.status(500).json({error: "Failed to record reaction_time"})
