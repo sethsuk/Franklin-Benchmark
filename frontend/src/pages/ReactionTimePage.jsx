@@ -15,7 +15,7 @@ function ReactionTimePage() {
   
     try {
       const response = await fetch("http://localhost:5000/reaction/leaderboard", {
-        method: "POST",
+        method: "GET",
         headers: { "Content-Type": "application/json" },
       });
   
@@ -36,10 +36,7 @@ function ReactionTimePage() {
 
   // fetching the leaderboard when the component mounts
   useEffect(() => {
-    setTimeout(() => {
-      console.log("Delayed useEffect triggered! Fetching leaderboard...");
-      fetchLeaderboard();
-    }, 1000);
+    fetchLeaderboard();
   }, []);
     
   useEffect(() => {
@@ -142,11 +139,8 @@ function ReactionTimePage() {
               <li key={index}>
           {index + 1}. 
           <strong 
-            className={player.reaction_time === reactionTime ? "highlighted-username" : ""}
-          >
-            {player.username}
-          </strong> 
-          - {player.reaction_time} ms
+            className={player.username === name ? "highlighted-username" : ""}
+          >{player.username} </strong>- {player.reactionTime} ms
         </li>
             ))
           ) : (

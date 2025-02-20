@@ -3,11 +3,11 @@ const pool = require('./db');
 async function initializeDatabase() {
     try {
         await pool.query(` 
-            CREATE TABLE IF NOT EXISTS reaction_times (
+            CREATE TABLE IF NOT EXISTS reaction_scores (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) NOT NULL,
                 reaction_time INT NOT NULL,
-                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 

@@ -4,11 +4,11 @@ const pool = require('../config/db.js');
 const router = express.Router();
 
 // Start new game session. Returns the top 10 times to beat
-router.post('/leaderboard', async (req, res) => {
+router.get('/leaderboard', async (req, res) => {
     console.log("\n\Reaction Leaderboard Called");
 
     try {
-        const results = await pool.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
+        const results = await pool.query('SELECT username, reaction_time AS "reactionTime" FROM reaction_scores ORDER BY reaction_time LIMIT 10;');
         const leaderboard = results.rows;
 
         return res.status(200).json({ leaderboard });
@@ -30,15 +30,15 @@ router.post('/record-time', async (req, res) => {
     }
 
     try {
-        const results = await pool.query('SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time LIMIT 10;');
+        const results = await pool.query('SELECT username, reaction_time FROM reaction_scores ORDER BY reaction_time LIMIT 10;');
         const leaderboard = results.rows;
 
         // console.log("leaderboard:", leaderboard);
         // console.log("worst reaction_time", leaderboard[leaderboard.length - 1].reaction_time);
         // console.log("comparison:", reactionTime < leaderboard[leaderboard.length - 1].reaction_time);
 
-        if (leaderboard.length < 10 || reactionTime < leaderboard[leaderboard.length - 1].reaction_time) {
-            await pool.query('INSERT INTO reaction_times (username, reaction_time) VALUES ($1, $2)', [username, reactionTime]);
+        if (leaderboard.length < 10 || reactionTime < leaderboard[leaderboard.length - 1].reactionTime) {
+            await pool.query('INSERT INTO reaction_scores (username, reaction_time) VALUES ($1, $2)', [username, reactionTime]);
         }
 
         res.json({ message: 'Reaction time recorded.' });
