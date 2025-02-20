@@ -141,8 +141,14 @@ function ReactionTimePage() {
           <ul>
             {leaderboard.map((player, index) => (
               <li key={index}>
-                {index + 1}. <strong>{player.username}</strong> - {player.reaction_time} ms
-              </li>
+              {index + 1}. 
+              <strong 
+                className={player.reaction_time === reactionTime ? "highlighted-username" : ""}
+              >
+                {player.username}
+              </strong> 
+              - {player.reaction_time} ms
+            </li>
             ))}
           </ul>
         ) : (

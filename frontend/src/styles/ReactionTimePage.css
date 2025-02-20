@@ -77,7 +77,24 @@
 
 .submitted-message {
   font-size: 18px;
-  color: #4caf50;
+  color: rgb(79, 221, 79);
   font-weight: bold;
   margin-top: 10px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.leaderboard-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.highlighted-username {
+  color: rgb(79, 221, 79);
+  font-weight: bold;
 }
