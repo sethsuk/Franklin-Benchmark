@@ -81,3 +81,20 @@
   font-weight: bold;
   margin-top: 10px;
 }
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.leaderboard-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.highlighted-username {
+  color: green;
+  font-weight: bold;
+}

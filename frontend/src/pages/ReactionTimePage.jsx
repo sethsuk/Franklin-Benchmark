@@ -8,9 +8,8 @@ function ReactionTimePage() {
   const [name, setName] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [timeoutId, setTimeoutId] = useState(null);
 
-  // Fetch leaderboard from backend
+  // this fetches the leaderboard from the backend
   const fetchLeaderboard = async () => {
     console.log("fetchLeaderboard() called!");
   
@@ -33,34 +32,30 @@ function ReactionTimePage() {
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
     }
-  };  
+  };
 
+  // fetching the leaderboard when the component mounts
   useEffect(() => {
-    console.log("\n\nuse effect triggered\n\n");
-    fetchLeaderboard();
+    setTimeout(() => {
+      console.log("Delayed useEffect triggered! Fetching leaderboard...");
+      fetchLeaderboard();
+    }, 1000);
   }, []);
     
   useEffect(() => {
     if (gameState === 'ready') {
-      const delay = Math.floor(Math.random() * 3000) + 1000;
-      const id = setTimeout(() => {
-        setGameState('go');
+      const randomDelay = Math.floor(Math.random() * 3000) + 1000;
+      setTimeout(() => {
+        setGameState('clicked');
         setStartTime(Date.now());
-      }, delay);
-      setTimeoutId(id);
+      }, randomDelay);
     }
-
-    return () => clearTimeout(timeoutId); // Cleanup on unmount
   }, [gameState]);
 
   const handleClick = () => {
     if (gameState === 'waiting') {
       setGameState('ready');
-    } else if (gameState === 'ready') {
-      // Penalize early clicks
-      setGameState('waiting');
-      alert("Too early! Click to try again.");
-    } else if (gameState === 'go') {
+    } else if (gameState === 'clicked') {
       setReactionTime(Date.now() - startTime);
       setGameState('submit');
     }
@@ -71,20 +66,18 @@ function ReactionTimePage() {
       alert("Please enter your name before submitting!");
       return;
     }
-
+  
     try {
       const response = await fetch("http://localhost:5000/reaction/record-time", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: name, reactionTime }),
       });
-
-      console.log(response);
-
+  
       if (response.ok) {
         console.log("Score submitted!");
         setSubmitted(true);
-        fetchLeaderboard();
+        fetchLeaderboard(); // this refreshes the leaderboard after the user clicks submit
       } else {
         console.error("Failed to submit score");
       }
@@ -109,7 +102,7 @@ function ReactionTimePage() {
         </div>
       )}
 
-      {gameState === 'go' && (
+      {gameState === 'clicked' && (
         <div className="reaction-box green" onClick={handleClick}>
           {reactionTime ? `${reactionTime} ms` : 'Click!'}
         </div>
@@ -117,37 +110,49 @@ function ReactionTimePage() {
 
       {gameState === 'submit' && (
         <div className="submission-container">
-          <p>Your Reaction Time: <strong>{reactionTime} ms</strong></p>
-          {!submitted ? (
-            <>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="name-input"
-              />
-              <button className="submit-button" onClick={handleSubmit}>Submit</button>
-            </>
-          ) : (
-            <p className="submitted-message">Submitted!</p>
-          )}
-        </div>
+        <p>Your Reaction Time: <strong>{reactionTime} ms</strong></p>
+        {!submitted ? (
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="name-input"
+            />
+            <button className="submit-button" type="submit">Submit</button>
+          </form>
+        ) : (
+          <p className="submitted-message">Submitted!</p>
+        )}
+      </div>      
       )}
 
+      {}
       <div className="leaderboard-container">
         <h2>Leaderboard</h2>
-        {leaderboard.length > 0 ? (
-          <ul>
-            {leaderboard.map((player, index) => (
+        <ul className="leaderboard-list">
+          {leaderboard.length > 0 ? (
+            leaderboard.map((player, index) => (
               <li key={index}>
-                {index + 1}. <strong>{player.username}</strong> - {player.reaction_time} ms
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No scores available yet.</p>
-        )}
+          {index + 1}. 
+          <strong 
+            className={player.reaction_time === reactionTime ? "highlighted-username" : ""}
+          >
+            {player.username}
+          </strong> 
+          - {player.reaction_time} ms
+        </li>
+            ))
+          ) : (
+            <p>No scores available yet.</p>
+          )}
+        </ul>
       </div>
     </div>
   );
