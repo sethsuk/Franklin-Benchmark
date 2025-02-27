@@ -3,11 +3,9 @@ const pool = require('../config/db.js');
 
 const router = express.Router();
 
-// Start new game session. Returns the top 10 times to beat
+// Retrieves Leaderboard. Returns the top 10 times to beat
 router.get('/leaderboard', async (req, res) => {
-    console.log("\n\Reaction Leaderboard Called");
-
-    const username = req.query.username;
+    console.log("\n\Masher Leaderboard Called");
 
     try {
         const results = await pool.query('SELECT username, reaction_time AS "reactionTime" FROM reaction_scores ORDER BY reaction_time, time LIMIT 10;');

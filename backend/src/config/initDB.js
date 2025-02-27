@@ -10,6 +10,14 @@ async function initializeDatabase() {
             );
         `);
 
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS masher_scores (
+                username VARCHAR(255) NOT NULL PRIMARY KEY,
+                mashes INT NOT NULL,
+                time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         console.log("Database initialized successfully.");
     } catch (error) {
         console.error("Error initializing database:", error);
