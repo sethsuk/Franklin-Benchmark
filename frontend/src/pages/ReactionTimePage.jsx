@@ -199,20 +199,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/ReactionTimePage.css';
 
-/**
- * Possible game states for clarity
- */
 const GAME_STATES = {
   WAITING: 'waiting',
   READY: 'ready',
-  CLICKED: 'clicked', // User can click to record reaction time
-  SUBMIT: 'submit',   // Submitting reaction time
+  CLICKED: 'clicked',
+  SUBMIT: 'submit',
 };
 
 function ReactionTimePage() {
-  // -------------------------
-  // State Management
-  // -------------------------
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [reactionTime, setReactionTime] = useState(null);
   const [startTime, setStartTime] = useState(0);
@@ -227,9 +221,6 @@ function ReactionTimePage() {
   // Store the timeout ID to clear if user clicks too early
   const timeoutIdRef = useRef(null);
 
-  // -------------------------
-  // Helper Functions
-  // -------------------------
   const fetchLeaderboard = async () => {
     try {
       console.log("fetchLeaderboard() called!");
@@ -252,9 +243,6 @@ function ReactionTimePage() {
     }
   };
 
-  /**
-   * Reset game to initial state, clearing all relevant variables.
-   */
   const resetGame = () => {
     setGameState(GAME_STATES.WAITING);
     setReactionTime(null);
@@ -297,20 +285,11 @@ function ReactionTimePage() {
     }
   };
 
-  // -------------------------
-  // Effects
-  // -------------------------
 
-  // Fetch leaderboard once on mount
   useEffect(() => {
     fetchLeaderboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * When gameState becomes "READY," set a random delay to switch to "CLICKED."
-   * - If user clicks early, we clear this timeout.
-   */
   useEffect(() => {
     if (gameState === GAME_STATES.READY) {
       const randomDelay = Math.floor(Math.random() * 3000) + 1000; // 1-3 seconds
@@ -324,13 +303,10 @@ function ReactionTimePage() {
     }
   }, [gameState]);
 
-  // -------------------------
-  // Click Handler
-  // -------------------------
+
   const handleClick = () => {
     switch (gameState) {
       case GAME_STATES.WAITING:
-        // Transition from WAITING (blue) -> READY (red)
         setGameState(GAME_STATES.READY);
         break;
       
@@ -352,40 +328,37 @@ function ReactionTimePage() {
         break;
       
       default:
-        // No action by default
         break;
     }
   };
 
-  // -------------------------
-  // Rendering
-  // -------------------------
+
   return (
     <div className="reaction-container">
       <h1>Reaction Time</h1>
 
-      {/* 1) WAITING (Blue) */}
+      {/*WAITING (Blue)*/}
       {gameState === GAME_STATES.WAITING && (
         <div className="reaction-box blue" onClick={handleClick}>
           Click anywhere to start.
         </div>
       )}
 
-      {/* 2) READY (Red) */}
+      {/*READY (Red)*/}
       {gameState === GAME_STATES.READY && (
         <div className="reaction-box red" onClick={handleClick}>
           Wait for green...
         </div>
       )}
 
-      {/* 3) CLICKED (Green) */}
+      {/*CLICKED (Green)*/}
       {gameState === GAME_STATES.CLICKED && (
         <div className="reaction-box green" onClick={handleClick}>
           {reactionTime ? `${reactionTime} ms` : 'Click!'}
         </div>
       )}
 
-      {/* 4) SUBMIT */}
+      {/*SUBMIT*/}
       {gameState === GAME_STATES.SUBMIT && (
         <div className="submission-container">
           <p>
