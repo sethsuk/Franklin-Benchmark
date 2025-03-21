@@ -2,6 +2,16 @@ const pool = require('./db');
 
 async function initializeDatabase() {
     try {
+        await pool.query(`
+           CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                google_id VARCHAR(255) UNIQUE NOT NULL,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+           ) 
+        `);
+
         await pool.query(` 
             CREATE TABLE IF NOT EXISTS reaction_scores (
                 username VARCHAR(255) NOT NULL PRIMARY KEY,
