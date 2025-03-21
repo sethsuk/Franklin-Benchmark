@@ -20,7 +20,7 @@ router.post('/auth/google', async (req, res) => {
             audience: client_id,
         });
 
-        const { email, name, sub: googleId } = ticket.getPayload();
+        const { email, sub: googleId } = ticket.getPayload();
 
         // Checks if user is in the db
         const userQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
@@ -30,7 +30,7 @@ router.post('/auth/google', async (req, res) => {
             res.json({ status: 'existing_user', user: userQuery.rows[0] });
         } else {
             // New user
-            res.json({ status: 'new_user', googleId, email, name });
+            res.json({ status: 'new_user', googleId, email });
         }
     } catch (err) {
         console.log(err);
@@ -63,8 +63,8 @@ router.post('/auth/register-username', async (req, res) => {
 
         // Insert new user to DB
         await pool.query(
-            'INSERT INTO users (google_id, username, email, name) VALUES ($1, $2, $3, $4)',
-            [googleId, username, email, name]
+            'INSERT INTO users (google_id, username, email) VALUES ($1, $2, $3)',
+            [googleId, username, email]
           );
       
         res.status(201).json({ message: 'User created successfully', username });
