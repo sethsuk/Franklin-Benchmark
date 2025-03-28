@@ -11,10 +11,10 @@ router.get('/leaderboard', async (req, res) => {
         const results = await pool.query('SELECT username, reaction_time AS "reactionTime" FROM reaction_scores ORDER BY reaction_time, time LIMIT 10;');
         const leaderboard = results.rows;
         
-        return res.status(200).json({ leaderboard});
+        res.status(200).json({ leaderboard});
     } catch (error) {
         console.log(error);
-        return res.status(500).json({error: "Failed to retrieve leaderboard"})
+        res.status(500).json({error: "Failed to retrieve leaderboard"})
     }
 });
 
@@ -27,7 +27,7 @@ router.post('/record-time', async (req, res) => {
     let userRank = null;
 
     if (!username || !reactionTime) {
-        return res.status(400).json({ message: 'Username and reaction time are required.' });
+        res.status(400).json({ message: 'Username and reaction time are required.' });
     }
 
     try {
@@ -57,10 +57,10 @@ router.post('/record-time', async (req, res) => {
         // Set userRank if found, otherwise return -1
         userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
 
-        res.json({ highScore: highScoreResults.rows[0].reactionTime, rank: Number(userRank) });
+        res.status(201).json({ highScore: highScoreResults.rows[0].reactionTime, rank: Number(userRank) });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({error: "Failed to record reaction_time"})
+        res.status(500).json({error: "Failed to record reaction_time"})
     }
 });
 

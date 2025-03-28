@@ -1,11 +1,6 @@
 const app = require('./src/app');
 const initializeDatabase = require('./src/config/initDB');
 
-// Uncomment if we need custom env
-// const dotenv = require('dotenv');
-
-// dotenv.config();
-
 // Initialize tables in DB
 initializeDatabase();
 

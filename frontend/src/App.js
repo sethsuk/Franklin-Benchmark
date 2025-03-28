@@ -1,9 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import ButtonMasherPage from './pages/ButtonMasher/ButtonMasherPage';
-import ReactionTimePage from './pages/ReactionTime/ReactionTimePage';
-import QuickMathPage from './pages/QuickMath/QuickMathPage';
+import HomePage from './pages/HomePage/HomePage.js';
+import ReactionTimePage from './pages/ReactiomTimePage/ReactionTimePage';
 
 function App() {
   return (
