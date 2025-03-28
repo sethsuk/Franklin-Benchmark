@@ -5,8 +5,8 @@ const Header = ({ userData, setUserData }) => {
     return (
         <header style={{ display: 'flex', alignItems: 'center', padding: '1rem' }}>
             <div style={{ marginLeft: 'auto' }}>
-            {userData ? (
-                <span>Welcome, {userData.username || userData.email}!</span>
+            {userData.username ? (
+                <span>Welcome, {userData.username}!</span>
             ) : (
                 <GoogleAuth setUserData={setUserData} />
             )}

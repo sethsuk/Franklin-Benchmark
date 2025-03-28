@@ -5,7 +5,7 @@ const GoogleAuth = ({ setUserData }) => {
     const handleLoginSuccess = (credentialResponse) => {
         const idToken = credentialResponse.credential;
     
-        console.log("Test TEST TEST");
+        // console.log("Test TEST TEST");
 
         fetch('http://localhost:5000/user/auth/google', {
             method: 'POST',

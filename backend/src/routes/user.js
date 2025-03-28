@@ -32,6 +32,14 @@ router.post('/auth/google', async (req, res) => {
             // New user
             res.json({ status: 'new_user', googleId, email });
         }
+
+        // Generate a JWT token for persistent authentication
+        // const token = jwt.sign(
+        //     { id: user.id, googleId: user.google_id, email: user.email },
+        //     process.env.JWT_SECRET,
+        //     { expiresIn: '1h' }
+        // );
+
     } catch (err) {
         console.log(err);
         res.status(401).json({ message: 'Invalid Google token' });
