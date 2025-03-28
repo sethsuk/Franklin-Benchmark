@@ -31,7 +31,7 @@ function generateQuestion() {
 }
 
 export default function QuickMathGame() {
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(20);
   const [score, setScore] = useState(0);
   const [questionData, setQuestionData] = useState(generateQuestion());
   const [input, setInput] = useState("");
@@ -71,7 +71,7 @@ export default function QuickMathGame() {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await fetch("http://localhost:5000/quickmath/leaderboard");
+      const res = await fetch("http://localhost:5000/math/leaderboard");
       const data = await res.json();
       setLeaderboard(data.leaderboard || []);
     } catch (err) {
@@ -95,7 +95,7 @@ export default function QuickMathGame() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/quickmath/record-score", {
+      const res = await fetch("http://localhost:5000/math/record-score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: name, score }),
