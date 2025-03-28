@@ -42,6 +42,16 @@ export default function QuickMathGame() {
   const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
 
+
+  useEffect(() => {
+    if (parseInt(input) === questionData.answer) {
+      setScore((s) => s + 1);
+      setInput("");
+      setQuestionData(generateQuestion());
+    }
+  }, [input]);
+
+
   useEffect(() => {
     fetchLeaderboard();
   }, []);
@@ -131,12 +141,6 @@ export default function QuickMathGame() {
             onChange={(e) => setInput(e.target.value)}
             className="border px-3 py-2 rounded text-xl"
           />
-          <button
-            type="submit"
-            className="ml-3 bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Submit
-          </button>
         </form>
       ) : (
         <SubmissionForm
