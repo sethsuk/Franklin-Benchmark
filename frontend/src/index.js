@@ -8,10 +8,9 @@ import './pages/ReactiomTimePage/ReactionTimePage.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <Router>
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
-      <App />
-    </GoogleOAuthProvider>
-  </Router>
+root.render(  <Router>
+  <GoogleOAuthProvider clientId={process.env.REACT_APP_CLIENT_ID}>
+    <App />
+  </GoogleOAuthProvider>
+</Router>
 );

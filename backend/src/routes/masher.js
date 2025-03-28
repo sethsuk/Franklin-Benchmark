@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Returns the top 10 mashes to beat
 router.get('/leaderboard', async (req, res) => {
-    console.log("\n\Masher Leaderboard Called");
+    console.log("\n\nMasher Leaderboard Called");
 
     try {
         const results = await pool.query('SELECT username, mashes AS "masherScore" FROM masher_scores ORDER BY mashes DESC, time LIMIT 10;');
@@ -27,7 +27,7 @@ router.post('/record-mashes', async (req, res) => {
     let userRank = null;
 
     if (!username || !mashes) {
-        res.status(400).json({ message: 'Username and mashes are required.' });
+        return res.status(400).json({ message: 'Username and mashes are required.' });
     }
 
     try {
@@ -63,7 +63,6 @@ router.post('/record-mashes', async (req, res) => {
         res.status(500).json({error: "Failed to record mashes"})
     }
 });
-
 
 // Export Masher endpoints
 module.exports = router;

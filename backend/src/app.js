@@ -19,6 +19,6 @@ app.use(cookieParser());
 app.use('/user', userRoutes)
 app.use('/reaction', reactionRoutes);
 app.use('/masher', masherRoutes);
-app.use('/math', mathRoutes)
+app.use('/math', mathRoutes);
 
 module.exports = app;
