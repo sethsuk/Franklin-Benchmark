@@ -5,10 +5,15 @@ const router = express.Router();
 
 // Returns the top 10 math scores to beat
 router.get('/leaderboard', async (req, res) => {
-    console.log("\n\Masher Leaderboard Called");
+    console.log("\n\Math Leaderboard Called");
 
     try {
-        const results = await pool.query('SELECT username, score FROM math_scores ORDER BY mashes DESC, time LIMIT 10;');
+        const results = await pool.query(`
+            SELECT u.username, ms.score
+            FROM math_scores ms JOIN users u ON ms.username = u.username
+            ORDER BY ms.score DESC, ms.time LIMIT 10;
+        `);
+
         const leaderboard = results.rows;
         
         res.status(200).json({ leaderboard});
@@ -18,38 +23,37 @@ router.get('/leaderboard', async (req, res) => {
     }
 });
 
-// Record game session. Frontend calculates the number of mashes
-// Takes in username and masherScore
-router.post('/record-mashes', async (req, res) => {
-    console.log("\n\nMasher Game Recorded", req.body);
+// Record game session. Frontend calculates the number of problems solved
+// Takes in username and math score
+router.post('/record-score', async (req, res) => {
+    console.log("\n\nMath Score Recorded", req.body);
 
-    const { username, mashes } = req.body;
+    const { username, score } = req.body;
     let userRank = null;
 
-    if (!username || !mashes) {
-        res.status(400).json({ message: 'Username and mashes are required.' });
+    if (!username || !score) {
+        res.status(400).json({ message: 'Username and score are required.' });
     }
 
     try {
         // Add user's time to DB
         await pool.query(`
-            INSERT INTO masher_scores (username, mashes) VALUES ($1, $2) 
+            INSERT INTO math_scores (username, score) VALUES ($1, $2) 
             ON CONFLICT (username) 
-            DO UPDATE SET mashes = GREATEST(EXCLUDED.mashes, masher_scores.mashes);
-            `, [username, mashes]);
+            DO UPDATE SET score = GREATEST(EXCLUDED.score, math_scores.score);
+            `, [username, score]);
 
         const highScoreResults = await pool.query(`
-            SELECT mashes
-            FROM masher_scores
+            SELECT score
+            FROM math_scores
             WHERE username = $1
             `, [username]);
 
-
         const userRankResults = await pool.query(`
             WITH ranked AS (
-                SELECT username, mashes,
-                RANK() OVER (ORDER BY mashes DESC, time) AS rank
-                FROM masher_scores
+                SELECT username, score,
+                RANK() OVER (ORDER BY score DESC, time) AS rank
+                FROM math_scores
             )
             SELECT rank FROM ranked WHERE username = $1;
             `, [username]);
@@ -57,10 +61,10 @@ router.post('/record-mashes', async (req, res) => {
         // Set userRank if found, otherwise return -1
         userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
 
-        res.status(201).json({ highScore: highScoreResults.rows[0].mashes, rank: Number(userRank) });
+        res.status(201).json({ highScore: highScoreResults.rows[0].score, rank: Number(userRank) });
     } catch (error) {
         console.log(error);
-        res.status(500).json({error: "Failed to record mashes"})
+        res.status(500).json({error: "Failed to record score"})
     }
 });
 

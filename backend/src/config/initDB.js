@@ -30,13 +30,13 @@ async function initializeDatabase() {
 
         await pool.query(`
             CREATE TABLE IF NOT EXISTS math_scores (
-                id VARCHAR(255) NOT NULL PRIMARY KEY,
+                username VARCHAR(255) NOT NULL PRIMARY KEY,
                 score INT NOT NULL,
                 time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (id) REFERENCES users(id)
+                FOREIGN KEY (username) REFERENCES users(username)
             )    
         `);
-        
+
         console.log("Database initialized successfully.");
     } catch (error) {
         console.error("Error initializing database:", error);
