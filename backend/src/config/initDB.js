@@ -2,6 +2,16 @@ const pool = require('./db');
 
 async function initializeDatabase() {
     try {
+        await pool.query(`
+           CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                google_id VARCHAR(255) UNIQUE NOT NULL,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+           ) 
+        `);
+
         await pool.query(` 
             CREATE TABLE IF NOT EXISTS reaction_scores (
                 username VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -16,6 +26,15 @@ async function initializeDatabase() {
                 mashes INT NOT NULL,
                 time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
+        `);
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS math_scores (
+                username VARCHAR(255) NOT NULL PRIMARY KEY,
+                score INT NOT NULL,
+                time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (username) REFERENCES users(username)
+            )    
         `);
 
         console.log("Database initialized successfully.");
