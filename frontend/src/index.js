@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
 import './pages/HomePage/HomePage.css';
-import './pages/ReactiomTimePage/ReactionTimePage.css';
+import './pages/ReactionTimePage/ReactionTimePage.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
