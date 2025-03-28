@@ -27,10 +27,10 @@ function HomePage() {
           <button className="game-button" onClick={() => navigate('/reaction-time')}>
             Reaction Time
           </button>
-          <button className="game-button">Quick Math</button>
-          <button className="game-button">Speed Typing</button>
-          <button className="game-button">Word Guesser</button>
-          <button className="game-button">Pitch Matcher</button>
+          <button className="game-button" onClick={() => navigate('/quick-math')}>Quick Math</button>
+          <button className="game-button" onClick={() => navigate('/button-masher')}>Button Masher</button>
+          {/* <button className="game-button">Speed Typing</button>
+          <button className="game-button">Pitch Matcher</button> */}
         </div>
       </div>
       {showUsernameModal && (
