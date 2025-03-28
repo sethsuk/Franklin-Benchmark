@@ -1,69 +1,68 @@
 const express = require('express');
 const pool = require('../config/db.js');
 
-const router = express.Router(); // ✅ Make sure this line is present
+const router = express.Router();
 
-// Export Reaction endpoints
-module.exports = router;
+// Retrieves Leaderboard. Returns the top 10 times to beat
+router.get('/leaderboard', async (req, res) => {
+    console.log("\n\Masher Leaderboard Called");
 
+    try {
+        const results = await pool.query('SELECT username, reaction_time AS "reactionTime" FROM reaction_scores ORDER BY reaction_time, time LIMIT 10;');
+        const leaderboard = results.rows;
+        
+        return res.status(200).json({ leaderboard});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error: "Failed to retrieve leaderboard"})
+    }
+});
 
+// Record game session. Frontend calculates the reaction time
+// Takes in username and reaction time
 router.post('/record-time', async (req, res) => {
-    console.log("\n\nReaction Game Recorded");
+    console.log("\n\nReaction Game Recorded", req.body);
 
     const { username, reactionTime } = req.body;
+    let userRank = null;
 
     if (!username || !reactionTime) {
         return res.status(400).json({ message: 'Username and reaction time are required.' });
     }
 
     try {
-        // ✅ Get the current top 10 leaderboard
-        const results = await pool.query(
-            "SELECT id, username, reaction_time FROM reaction_times ORDER BY reaction_time ASC"
-        );
-        const leaderboard = results.rows;
+        // Add user's time to DB
+        await pool.query(`
+            INSERT INTO reaction_scores (username, reaction_time) VALUES ($1, $2) 
+            ON CONFLICT (username) 
+            DO UPDATE SET reaction_time = LEAST(EXCLUDED.reaction_time, reaction_scores.reaction_time);
+            `, [username, reactionTime]);
 
-        if (leaderboard.length >= 10) {
-            const slowestTime = leaderboard[leaderboard.length - 1]; // Get the slowest time
+        const highScoreResults = await pool.query(`
+            SELECT reaction_time AS "reactionTime"
+            FROM reaction_scores
+            WHERE username = $1
+            `, [username]);
 
-            // ✅ If the new reaction time is faster, replace the slowest time
-            if (reactionTime < slowestTime.reaction_time) {
-                await pool.query("DELETE FROM reaction_times WHERE id = $1", [slowestTime.id]);
-                console.log(`✅ Deleted slowest score (${slowestTime.reaction_time} ms) to insert ${reactionTime} ms`);
-            } else {
-                console.log(`❌ ${reactionTime} ms is not faster than the slowest (${slowestTime.reaction_time} ms)`);
-                return res.json({ message: "Your reaction time is not in the top 10." });
-            }
-        }
 
-        // ✅ Insert new reaction time
-        await pool.query("INSERT INTO reaction_times (username, reaction_time) VALUES ($1, $2)", 
-            [username, reactionTime]);
+        const userRankResults = await pool.query(`
+            WITH ranked AS (
+                SELECT username, reaction_time,
+                RANK() OVER (ORDER BY reaction_time, time) AS rank
+                FROM reaction_scores
+            )
+            SELECT rank FROM ranked WHERE username = $1;
+            `, [username]);
 
-        // ✅ Fetch the updated leaderboard
-        const updatedResults = await pool.query(
-            "SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time ASC LIMIT 10;"
-        );
-        console.log("✅ Updated Leaderboard:", updatedResults.rows);
+        // Set userRank if found, otherwise return -1
+        userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
 
-        res.json({ message: "Reaction time recorded.", leaderboard: updatedResults.rows });
+        res.json({ highScore: highScoreResults.rows[0].reactionTime, rank: Number(userRank) });
     } catch (error) {
-        console.error("Error recording reaction time:", error);
-        return res.status(500).json({ error: "Failed to record reaction time" });
+        console.log(error);
+        return res.status(500).json({error: "Failed to record reaction_time"})
     }
 });
 
-
-router.post('/leaderboard', async (req, res) => {
-    console.log("\nReaction Leaderboard Called");
-
-    try {
-        const results = await pool.query(
-            "SELECT username, reaction_time FROM reaction_times ORDER BY reaction_time ASC LIMIT 10;"
-        );
-        return res.json({ leaderboard: results.rows });
-    } catch (error) {
-        console.error("Error retrieving leaderboard:", error);
-        return res.status(500).json({ error: "Failed to retrieve leaderboard" });
-    }
-});
+// Export Reaction endpoints
+module.exports = router;

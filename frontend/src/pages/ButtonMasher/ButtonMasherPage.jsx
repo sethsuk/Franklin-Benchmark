@@ -4,7 +4,7 @@ import MasherLeaderboard from "./MasherLeaderboard";
 
 function ButtonMasherPage() {
   const [clickCount, setClickCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(20);
   const [gameOver, setGameOver] = useState(false);
 
   const [name, setName] = useState('');
@@ -57,7 +57,7 @@ function ButtonMasherPage() {
 
   const startGame = () => {
     setClickCount(0);
-    setTimeLeft(5);
+    setTimeLeft(20);
     setGameOver(false);
     setSubmitted(false);
     setHighScore(-1);
@@ -94,7 +94,7 @@ function ButtonMasherPage() {
             Click Me!
           </button>
           <p className="click-count-text">Click Count: {clickCount}</p>
-          {timeLeft === 5 && (
+          {timeLeft === 20 && (
             <button className="submit-button" onClick={startGame}>
               Start Game
             </button>

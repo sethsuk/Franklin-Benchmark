@@ -12,8 +12,7 @@ function HomePage() {
       <div className="game-selection">
         <button className="game-button" onClick={() => navigate('/reaction-time')}>Reaction Time</button>
         <button className="game-button" onClick={() => navigate('/button-masher')}>Button Masher</button>
-        <button className="game-button">Quick Math</button>
-        <button className="game-button">Pitch Matcher</button>
+        <button className="game-button" onClick={() => navigate('/quick-math')}>Quick Math</button>
       </div>
     </div>
   );
