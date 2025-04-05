@@ -1,6 +1,8 @@
 const express = require('express');
 const pool = require('../config/db.js');
 const { OAuth2Client } = require('google-auth-library');
+const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 
 const client_id = process.env.CLIENT_ID;
@@ -27,18 +29,25 @@ router.post('/auth/google', async (req, res) => {
 
         if (userQuery.rows.length > 0) {
             // User exists
-            res.json({ status: 'existing_user', user: userQuery.rows[0] });
+            const user = userQuery.rows[0];
+
+            const token = jwt.sign(
+                { userId: user.id, username: user.username },
+                process.env.JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+
+            res.json({ status: 'existing_user', user, token });
         } else {
             // New user
-            res.json({ status: 'new_user', googleId, email });
-        }
+            const token = jwt.sign(
+                { googleId, email },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
 
-        // Generate a JWT token for persistent authentication
-        // const token = jwt.sign(
-        //     { id: user.id, googleId: user.google_id, email: user.email },
-        //     process.env.JWT_SECRET,
-        //     { expiresIn: '1h' }
-        // );
+            res.json({ status: 'new_user', googleId, email, token });
+        }
 
     } catch (err) {
         console.log(err);
@@ -50,7 +59,7 @@ router.post('/auth/google', async (req, res) => {
 router.post('/auth/register-username', async (req, res) => {
     console.log('\n\nRegister-username Called');
 
-    const { googleId, username, email, name } = req.body;
+    const { googleId, username, email } = req.body;
 
     try {
         // Validate unique username
@@ -70,16 +79,45 @@ router.post('/auth/register-username', async (req, res) => {
         }
 
         // Insert new user to DB
-        await pool.query(
-            'INSERT INTO users (google_id, username, email) VALUES ($1, $2, $3)',
+        const newUserQuery = await pool.query(
+            'INSERT INTO users (google_id, username, email) VALUES ($1, $2, $3) RETURNING *',
             [googleId, username, email]
-          );
+        );
+
+        const newUser = newUserQuery.rows[0];
+
+        const token = jwt.sign(
+            { userId: newUser.id, username: newUser.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
       
-        res.status(201).json({ message: 'User created successfully', username });
+        res.status(201).json({ message: 'User created successfully', username, token });
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: 'Database error' });
     }
+});
+
+// Middleware to verify JWT tokens
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    // null token
+    if (!token) return res.sendStatus(401);
+
+    // verify token
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user; // userId and username will be available
+        next();
+    });
+};
+
+// Example protected route
+router.get('/verify', authenticateToken, (req, res) => {
+    res.json({ message: 'User verified', user: req.user });
 });
 
 
