@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import MasherSubmissionForm from "./MasherSubmissionForm";
 import MasherLeaderboard from "./MasherLeaderboard";
 
-import Header from '../../components/Header/Header';
-
 function ButtonMasherPage() {
   const [clickCount, setClickCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(20);
@@ -15,8 +13,6 @@ function ButtonMasherPage() {
   const [highScore, setHighScore] = useState(-1);
   const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
-
-  const [userData, setUserData] = useState(null);
 
   const fetchLeaderboard = async () => {
     try {
@@ -85,7 +81,6 @@ function ButtonMasherPage() {
 
   return (
     <div className="reaction-container">
-      <Header userData={userData} setUserData={setUserData} />
       <h1>Button Masher</h1>
 
       {!gameOver ? (

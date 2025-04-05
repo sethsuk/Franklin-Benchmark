@@ -21,6 +21,13 @@ const UsernameForm = ({ userData, setUserData }) => {
         })
         .then(data => {
             console.log(data.message);
+
+            // store the new JWT token with username in localStorage
+            localStorage.setItem('token', data.token);
+
+            // remove the old temp token without username
+            localStorage.removeItem('tempToken');
+
             setUserData({ ...userData, username });
         })
         .catch(err => setError(err.message || 'Error creating user'));
