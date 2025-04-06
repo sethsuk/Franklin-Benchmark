@@ -115,7 +115,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Example protected route
 router.get('/verify', authenticateToken, (req, res) => {
     res.json({ message: 'User verified', user: req.user });
 });
