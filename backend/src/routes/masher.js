@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('../config/db.js');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
@@ -103,13 +104,10 @@ router.get('/user-rank', authenticateToken, async (req, res) => {
             SELECT rank FROM ranked WHERE username = $1;
             `, [username]);
 
-        // Set userRank if found, otherwise return -1
-        const userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
-
-        // Set highScore if found, otherwise return -1
-        const highScore = highScoreResults.rows.length > 0 ? highScoreResults.rows[0].mashes : -1;
+        const highScore = highScoreResults.rows.length > 0 ? Number(highScoreResults.rows[0].mashes) : null;
+        const userRank = userRankResults.rows.length > 0 ? Number(userRankResults.rows[0].rank) : null;
         
-        res.status(200).json({ highScore, rank: Number(userRank) });
+        res.status(200).json({ highScore, rank: userRank });
     } catch (error) {
         console.error(error);
         res.status(500).json({error: "Failed to retrieve user rank"})

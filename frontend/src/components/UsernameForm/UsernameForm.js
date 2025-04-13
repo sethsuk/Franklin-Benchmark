@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
-const UsernameForm = ({ userData, setUserData }) => {
+const UsernameForm = () => {
+    const { userData, setUserData } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
 
@@ -16,18 +18,15 @@ const UsernameForm = ({ userData, setUserData }) => {
             if (!res.ok) {
                 return res.json().then(err => Promise.reject(err));
             }
-
             return res.json();
         })
         .then(data => {
             console.log(data.message);
-
             // store the new JWT token with username in localStorage
             localStorage.setItem('token', data.token);
-
             // remove the old temp token without username
             localStorage.removeItem('tempToken');
-
+            // update the auth context with the new username
             setUserData({ ...userData, username });
         })
         .catch(err => setError(err.message || 'Error creating user'));

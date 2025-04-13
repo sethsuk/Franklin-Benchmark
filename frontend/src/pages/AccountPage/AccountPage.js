@@ -44,7 +44,7 @@ const AccountPage = () => {
                         rank: masherRankData.rank,
                       });
                 } else {
-                    throw new Error(masherData.error || 'Failed to fetch masher ranking');
+                    throw new Error(masherRankData.error || 'Failed to fetch masher ranking');
                 }
 
                 // Fetch Reaction leaderboard
@@ -75,7 +75,7 @@ const AccountPage = () => {
                 const mathRankData = await mathResponse.json();
 
                 if(mathResponse.ok) {
-                    setReactionData({
+                    setMathData({
                         highScore: mathRankData.highScore,
                         rank: mathRankData.rank,
                       });
@@ -116,18 +116,18 @@ const AccountPage = () => {
             <h2>Leaderboard</h2>
             <div className="minigame">
               <h3>Button Masher</h3>
-              <p>High Score: {masherData.highScore !== null ? masherData.highScore : 'N/A'}</p>
-              <p>Rank: {masherData.rank !== null ? masherData.rank : 'N/A'}</p>
+              <p>High Score: {masherData.highScore !== null ? masherData.highScore : 'No records'}</p>
+              <p>Rank: {masherData.rank !== null ? masherData.rank : 'No records'}</p>
             </div>
             <div className="minigame">
               <h3>Reaction Time</h3>
-              <p>High Score: {reactionData.highScore !== null ? reactionData.highScore : 'N/A'}</p>
-              <p>Rank: {reactionData.rank !== null ? reactionData.rank : 'N/A'}</p>
+              <p>High Score: {reactionData.highScore !== null ? reactionData.highScore : 'No records'}</p>
+              <p>Rank: {reactionData.rank !== null ? reactionData.rank : 'No records'}</p>
             </div>
             <div className="minigame">
               <h3>Quick Math</h3>
-              <p>High Score: {mathData.highScore !== null ? mathData.highScore : 'N/A'}</p>
-              <p>Rank: {mathData.rank !== null ? mathData.rank : 'N/A'}</p>
+              <p>High Score: {mathData.highScore !== null ? mathData.highScore : 'No records'}</p>
+              <p>Rank: {mathData.rank !== null ? mathData.rank : 'No records'}</p>
             </div>
           </section>
         </div>
