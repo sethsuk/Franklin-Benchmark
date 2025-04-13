@@ -3,6 +3,23 @@ const pool = require('../config/db.js');
 
 const router = express.Router();
 
+// Middleware to verify JWT tokens
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    // null token
+    if (!token) return res.sendStatus(401);
+
+    // verify token
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+
+        req.user = user; // userId and username will be available
+        next();
+    });
+};
+
 // Returns the top 10 mashes to beat
 router.get('/leaderboard', async (req, res) => {
     console.log("\n\nMasher Leaderboard Called");
@@ -11,9 +28,9 @@ router.get('/leaderboard', async (req, res) => {
         const results = await pool.query('SELECT username, mashes AS "masherScore" FROM masher_scores ORDER BY mashes DESC, time LIMIT 10;');
         const leaderboard = results.rows;
         
-        res.status(200).json({ leaderboard});
+        res.status(200).json({ leaderboard });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({error: "Failed to retrieve leaderboard"})
     }
 });
@@ -59,8 +76,43 @@ router.post('/record-mashes', async (req, res) => {
 
         res.status(201).json({ highScore: highScoreResults.rows[0].mashes, rank: Number(userRank) });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({error: "Failed to record mashes"})
+    }
+});
+
+// GET endpoint => returns highscore and rank
+router.get('/user-rank', authenticateToken, async (req, res) => {
+    console.log("\n\nMasher User Rank Called");
+
+    const username = req.user.username;
+
+    try {
+        const highScoreResults = await pool.query(`
+            SELECT mashes
+            FROM masher_scores
+            WHERE username = $1
+            `, [username]);
+
+        const userRankResults = await pool.query(`
+            WITH ranked AS (
+                SELECT username, mashes,
+                RANK() OVER (ORDER BY mashes DESC, time) AS rank
+                FROM masher_scores
+            )
+            SELECT rank FROM ranked WHERE username = $1;
+            `, [username]);
+
+        // Set userRank if found, otherwise return -1
+        const userRank = userRankResults.rows.length > 0 ? userRankResults.rows[0].rank : -1;
+
+        // Set highScore if found, otherwise return -1
+        const highScore = highScoreResults.rows.length > 0 ? highScoreResults.rows[0].mashes : -1;
+        
+        res.status(200).json({ highScore, rank: Number(userRank) });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Failed to retrieve user rank"})
     }
 });
 
