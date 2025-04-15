@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
@@ -11,16 +10,7 @@ import Header from '../../components/Header/Header';
 import UsernameForm from '../../components/UsernameForm/UsernameForm';
 
 function HomePage() {
-  const [userData, setUserData] = useState(null);
-  const [showUsernameModal, setShowUsernameModal] = useState(false);
-
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (userData && userData.status === 'new_user') {
-      setShowUsernameModal(true);
-    }
-  }, [userData]);
 
   return (
     <div className="page-root">
@@ -71,18 +61,7 @@ function HomePage() {
           </div>
         </div>
       </div>
-
-      {showUsernameModal && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <UsernameForm userData={userData} setUserData={setUserData} />
-            <button onClick={() => setShowUsernameModal(false)} style={{ marginTop: '1rem' }}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 
