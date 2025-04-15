@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SubmissionForm from "./SubmissionForm";
 import Leaderboard from "./Leaderboard";
+import "./QuickMath.css";
 
 function generateQuestion() {
   const ops = ["+", "-", "×", "÷"];
@@ -42,7 +43,6 @@ export default function QuickMathGame() {
   const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
 
-
   useEffect(() => {
     if (parseInt(input) === questionData.answer) {
       setScore((s) => s + 1);
@@ -50,7 +50,6 @@ export default function QuickMathGame() {
       setQuestionData(generateQuestion());
     }
   }, [input]);
-
 
   useEffect(() => {
     fetchLeaderboard();
@@ -117,7 +116,7 @@ export default function QuickMathGame() {
   };
 
   const resetGame = () => {
-    setTimeLeft(5);
+    setTimeLeft(20);
     setScore(0);
     setInput("");
     setSubmitted(false);
@@ -129,33 +128,41 @@ export default function QuickMathGame() {
   };
 
   return (
-    <div className="text-center space-y-6">
-      <p className="text-lg">Time Left: {timeLeft}s</p>
-      <p className="text-2xl font-semibold">{questionData.question}</p>
+    <div className="quick-math-wrapper">
+      <div className="quick-math-board">
+        <div className="top-bar">
+          <span>Time {timeLeft}s</span>
+          <span>Score {score}</span>
+        </div>
 
-      {timeLeft > 0 ? (
-        <form onSubmit={handleSubmitAnswer}>
-          <input
-            type="number"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="border px-3 py-2 rounded text-xl"
-          />
-        </form>
-      ) : (
-        <SubmissionForm
-          name={name}
-          setName={setName}
-          handleSubmit={handleSubmitScore}
-          submitted={submitted}
-          resetGame={resetGame}
-          score={score}
-          highScore={highScore}
-          rank={rank}
-        />
-      )}
+        <div className="question-display">{questionData.question}</div>
 
-      <Leaderboard leaderboard={leaderboard} lastSubmittedPlayer={lastSubmittedPlayer} />
+        {timeLeft > 0 ? (
+          <form onSubmit={handleSubmitAnswer}>
+            <input
+              type="number"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="math-input"
+              autoFocus
+            />
+          </form>
+        ) : (
+          <>
+            <SubmissionForm
+              name={name}
+              setName={setName}
+              handleSubmit={handleSubmitScore}
+              submitted={submitted}
+              resetGame={resetGame}
+              score={score}
+              highScore={highScore}
+              rank={rank}
+            />
+            <Leaderboard leaderboard={leaderboard} lastSubmittedPlayer={lastSubmittedPlayer} />
+          </>
+        )}
+      </div>
     </div>
   );
 }

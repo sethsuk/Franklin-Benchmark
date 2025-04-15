@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage/HomePage.js';
-import ReactionTimePage from './pages/ReactionTimePage/ReactionTimePage.jsx';
+import ReactionTimePage from './pages/ReactionTimePage/ReactionTimePage';
 import ButtonMasherPage from './pages/ButtonMasher/ButtonMasherPage.jsx';
 import QuickMathPage from './pages/QuickMath/QuickMathPage.jsx';
 
