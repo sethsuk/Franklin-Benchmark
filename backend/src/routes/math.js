@@ -1,7 +1,25 @@
 const express = require('express');
 const pool = require('../config/db.js');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
+
+// Middleware to verify JWT tokens
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    // null token
+    if (!token) return res.sendStatus(401);
+
+    // verify token
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+
+        req.user = user; // userId and username will be available
+        next();
+    });
+};
 
 // Returns the top 10 math scores to beat
 router.get('/leaderboard', async (req, res) => {
@@ -18,7 +36,7 @@ router.get('/leaderboard', async (req, res) => {
         
         res.status(200).json({ leaderboard});
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({error: "Failed to retrieve leaderboard"})
     }
 });
@@ -63,11 +81,42 @@ router.post('/record-score', async (req, res) => {
 
         res.status(201).json({ highScore: highScoreResults.rows[0].score, rank: Number(userRank) });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({error: "Failed to record score"})
     }
 });
 
+// GET endpoint => returns highscore and rank
+router.get('/user-rank', authenticateToken, async (req, res) => {
+    console.log("\n\nMath User Rank Called");
+
+    const username = req.user.username;
+
+    try {
+        const highScoreResults = await pool.query(`
+            SELECT score
+            FROM math_scores
+            WHERE username = $1
+            `, [username]);
+
+        const userRankResults = await pool.query(`
+            WITH ranked AS (
+                SELECT username, score,
+                RANK() OVER (ORDER BY score DESC, time) AS rank
+                FROM math_scores
+            )
+            SELECT rank FROM ranked WHERE username = $1;
+            `, [username]);
+
+        const highScore = highScoreResults.rows.length > 0 ? Number(highScoreResults.rows[0].score) : null;
+        const userRank = userRankResults.rows.length > 0 ? Number(userRankResults.rows[0].rank) : null;
+        
+        res.status(200).json({ highScore, rank: userRank });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Failed to retrieve user rank"})
+    }
+});
 
 // Export Math endpoints
 module.exports = router;

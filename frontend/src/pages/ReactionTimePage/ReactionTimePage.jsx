@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ReactionTimePage.css';
 
-import Header from '../../components/Header/Header';
-
 const GAME_STATES = {
   WAITING: 'waiting',
   READY: 'ready',
@@ -11,8 +9,6 @@ const GAME_STATES = {
 };
 
 function ReactionTimePage() {
-  const [userData, setUserData] = useState(null);
-
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [reactionTime, setReactionTime] = useState(null);
   const [startTime, setStartTime] = useState(0);
@@ -141,7 +137,6 @@ function ReactionTimePage() {
 
   return (
     <div className="reaction-container">
-      <Header userData={userData} setUserData={setUserData} />
       <h1>Reaction Time</h1>
 
       {/*WAITING (Blue)*/}
