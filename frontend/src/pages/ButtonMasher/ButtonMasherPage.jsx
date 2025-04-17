@@ -1,20 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Header from "../../components/Header/Header";
+import { AuthContext } from "../../context/AuthContext";
+
 import "./ButtonMasher.css";
 
 export default function ButtonMasherPage() {
-  const [duration, setDuration] = useState(10);
+  const { token, userData } = useContext(AuthContext);
+
+  // const [duration, setDuration] = useState(10);
   const [clickCount, setClickCount] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(duration);
+
+  const DURATION = 10;
+
+  const [timeLeft, setTimeLeft] = useState(DURATION);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
-  const [name, setName] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [highScore, setHighScore] = useState(-1);
   const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/masher/leaderboard");
+      const data = await res.json();
+      setLeaderboard(data.leaderboard || []);
+    } catch (err) {
+      console.error("Failed to fetch leaderboard:", err);
+    }
+  };
 
   useEffect(() => {
     fetchLeaderboard();
@@ -29,26 +45,20 @@ export default function ButtonMasherPage() {
             setGameOver(true);
             setGameStarted(false);
           }
-          return prev - 1;
+          return prev - 1 >= 0 ? prev - 1 : 0;
         });
       }, 1000);
       return () => clearInterval(timer);
     }
   }, [timeLeft, gameStarted]);
 
-  const fetchLeaderboard = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/masher/leaderboard");
-      const data = await res.json();
-      setLeaderboard(data.leaderboard || []);
-    } catch (err) {
-      console.error("Failed to fetch leaderboard:", err);
-    }
-  };
+  useEffect(() => {
+    if (gameOver) fetchLeaderboard();
+  }, [gameOver]);
 
   const handleStart = () => {
     setClickCount(0);
-    setTimeLeft(duration);
+    setTimeLeft(DURATION);
     setGameOver(false);
     setGameStarted(true);
     setSubmitted(false);
@@ -58,22 +68,17 @@ export default function ButtonMasherPage() {
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
-      alert("Please enter your name!");
-      return;
-    }
-
     try {
       const res = await fetch("http://localhost:5000/masher/record-mashes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name, mashes: clickCount }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ mashes: clickCount }),
       });
 
       if (res.ok) {
         const data = await res.json();
         setSubmitted(true);
-        setLastSubmittedPlayer({ username: name, mashes: clickCount });
+        setLastSubmittedPlayer({ username: userData.username, mashes: clickCount });
         setHighScore(data.highScore);
         setRank(data.rank);
         fetchLeaderboard();
@@ -95,7 +100,7 @@ export default function ButtonMasherPage() {
       <Header/>
 
       <div className="buttonmasher-container">
-        <div className="duration-buttons">
+        {/* <div className="duration-buttons">
           {[10, 30, 60].map((d) => (
             <button
               key={d}
@@ -106,7 +111,7 @@ export default function ButtonMasherPage() {
               {d === 60 ? "1 minute" : `${d} seconds`}
             </button>
           ))}
-        </div>
+        </div> */}
 
         <div className="game-box">
           {!gameOver ? (
@@ -121,26 +126,27 @@ export default function ButtonMasherPage() {
                 {gameStarted ? "CLICK!" : "START"}
               </button>
               <div className="stats">
-                <span>Time: {timeLeft.toFixed(2)} s</span>
+                <span>Time: {timeLeft} s</span>
                 <span>High Score: {clickCount}</span>
               </div>
             </>
           ) : (
             <>
               <h2>Time's Up!</h2>
-              <p>You clicked <strong>{clickCount}</strong> times!</p>
+              <p>
+              Score: <strong>{clickCount}</strong> 
+              {submitted && highScore !== -1 && rank !== -1 && (
+                <>
+                , High Score:&nbsp;<strong>{highScore}</strong>
+                , Rank:&nbsp;<strong>{rank}</strong>
+                </>
+              )}
+              </p>
 
               {!submitted ? (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="name-input"
-                  />
-                  <button className="start-button" onClick={handleSubmit}>Submit</button>
-                </>
+                <button className="start-button" onClick={handleSubmit}>
+                  Submit
+                </button>
               ) : (
                 <>
                   <p className="submitted-message">Submitted!</p>
@@ -151,7 +157,7 @@ export default function ButtonMasherPage() {
           )}
         </div>
 
-        {gameOver && submitted && (
+        {leaderboard.length > 0 && (
           <div className="leaderboard-container">
             <h3>Leaderboard</h3>
             <ul className="leaderboard-list">
@@ -172,7 +178,6 @@ export default function ButtonMasherPage() {
                 );
               })}
             </ul>
-            <p className="leaderboard-footer">click to view more</p>
           </div>
         )}
       </div>

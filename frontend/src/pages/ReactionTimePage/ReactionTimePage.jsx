@@ -144,7 +144,7 @@ function ReactionTimePage() {
 
       {gameState === GAME_STATES.CLICKED && (
         <p className="reaction-prompt">
-          {reactionTime ? `${reactionTime} ms` : "Click!!"}
+          {reactionTime ? `${reactionTime} ms` : "Click!"}
         </p>
       )}
     </div>

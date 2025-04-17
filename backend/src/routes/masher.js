@@ -26,7 +26,7 @@ router.get('/leaderboard', async (req, res) => {
     console.log("\n\nMasher Leaderboard Called");
 
     try {
-        const results = await pool.query('SELECT username, mashes AS "masherScore" FROM masher_scores ORDER BY mashes DESC, time LIMIT 10;');
+        const results = await pool.query('SELECT username, mashes FROM masher_scores ORDER BY mashes DESC, time LIMIT 10;');
         const leaderboard = results.rows;
         
         res.status(200).json({ leaderboard });
@@ -38,13 +38,15 @@ router.get('/leaderboard', async (req, res) => {
 
 // Record game session. Frontend calculates the number of mashes
 // Takes in username and masherScore
-router.post('/record-mashes', async (req, res) => {
+router.post('/record-mashes', authenticateToken, async (req, res) => {
     console.log("\n\nMasher Game Recorded", req.body);
 
-    const { username, mashes } = req.body;
+    const username = req.user.username;
+    const { mashes } = req.body;
+
     let userRank = null;
 
-    if (!username || !mashes) {
+    if (!username || mashes === undefined) {
         return res.status(400).json({ message: 'Username and mashes are required.' });
     }
 
