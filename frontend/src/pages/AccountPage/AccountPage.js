@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import Header from "../../components/Header/Header";
+import { AuthContext } from '../../context/AuthContext';
 
 const AccountPage = () => {
     const [accountAge, setAccountAge] = useState(null);
@@ -8,8 +10,7 @@ const AccountPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // get token from local storage
-    const token = localStorage.getItem('token');
+    const { token } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -101,6 +102,7 @@ const AccountPage = () => {
 
     return (
         <div className="account-page">
+        <Header/>
           <h1>Account Details</h1>
     
           <section className="account-age-section">

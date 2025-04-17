@@ -32,7 +32,7 @@ router.post('/auth/google', async (req, res) => {
             const user = userQuery.rows[0];
 
             const token = jwt.sign(
-                { userId: user.id, username: user.username },
+                { google_id: user.google_id, username: user.username },
                 process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             );
@@ -132,6 +132,8 @@ router.get('/account-age', authenticateToken, async (req, res) => {
             FROM users
             WHERE google_id = $1
             `, [google_id]);
+
+        console.log(google_id);
 
         // No result from DB
         if (result.rows.length === 0) {

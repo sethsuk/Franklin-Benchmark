@@ -1,4 +1,4 @@
-// TODO, connect to a MySQL DB
+// connect to a PostgreSQL DB
 const dotenv = require('dotenv');
 const { Pool } = require('pg');
 
