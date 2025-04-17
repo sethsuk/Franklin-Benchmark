@@ -43,13 +43,14 @@ router.get('/leaderboard', async (req, res) => {
 
 // Record game session. Frontend calculates the number of problems solved
 // Takes in username and math score
-router.post('/record-score', async (req, res) => {
+router.post('/record-score', authenticateToken, async (req, res) => {
     console.log("\n\nMath Score Recorded", req.body);
 
-    const { username, score } = req.body;
+    const username = req.user.username;
+    const { score } = req.body;
     let userRank = null;
 
-    if (!username || !score) {
+    if (!username || score === undefined) {
         res.status(400).json({ message: 'Username and score are required.' });
     }
 

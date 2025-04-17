@@ -1,72 +1,54 @@
-import React, { useEffect, useState } from "react";
-import SubmissionForm from "./SubmissionForm";
+import React, { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 import Leaderboard from "./Leaderboard";
 import "./QuickMath.css";
 
 function generateQuestion() {
   const ops = ["+", "-", "×", "÷"];
   const op = ops[Math.floor(Math.random() * ops.length)];
+  let a, b, answer;
 
-  let a, b, question, answer;
-
-  if (op === "+") {
-    a = Math.floor(Math.random() * 99) + 2;
-    b = Math.floor(Math.random() * 99) + 2;
-    answer = a + b;
-  } else if (op === "-") {
-    b = Math.floor(Math.random() * 99) + 2;
-    a = Math.floor(Math.random() * 99) + 2 + b;
-    answer = a - b;
-  } else if (op === "×") {
-    a = Math.floor(Math.random() * 11) + 2;
-    b = Math.floor(Math.random() * 99) + 2;
-    answer = a * b;
-  } else {
-    b = Math.floor(Math.random() * 99) + 2;
-    answer = Math.floor(Math.random() * 11) + 2;
-    a = b * answer;
+  switch (op) {
+    case "+":
+      a = Math.floor(Math.random() * 99) + 2;
+      b = Math.floor(Math.random() * 99) + 2;
+      answer = a + b;
+      break;
+    case "-":
+      b = Math.floor(Math.random() * 99) + 2;
+      a = Math.floor(Math.random() * 99) + 2 + b;
+      answer = a - b;
+      break;
+    case "×":
+      a = Math.floor(Math.random() * 11) + 2;
+      b = Math.floor(Math.random() * 99) + 2;
+      answer = a * b;
+      break;
+    default: // ÷
+      b = Math.floor(Math.random() * 99) + 2;
+      answer = Math.floor(Math.random() * 11) + 2;
+      a = b * answer;
   }
-
-  question = `${a} ${op} ${b}`;
-  return { question, answer };
+  return { question: `${a} ${op} ${b}`, answer };
 }
 
 export default function QuickMathGame() {
+  const { token, userData } = useContext(AuthContext);
+
   const [timeLeft, setTimeLeft] = useState(20);
   const [score, setScore] = useState(0);
+  const [gameStarted, setGameStarted] = useState(false);
   const [questionData, setQuestionData] = useState(generateQuestion());
   const [input, setInput] = useState("");
+
   const [submitted, setSubmitted] = useState(false);
-  const [name, setName] = useState("");
+  const [highScore, setHighScore] = useState(null);
+  const [rank, setRank] = useState(null);
+
   const [leaderboard, setLeaderboard] = useState([]);
-  const [highScore, setHighScore] = useState(-1);
-  const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
 
-  useEffect(() => {
-    if (parseInt(input) === questionData.answer) {
-      setScore((s) => s + 1);
-      setInput("");
-      setQuestionData(generateQuestion());
-    }
-  }, [input]);
-
-  useEffect(() => {
-    fetchLeaderboard();
-  }, []);
-
-  useEffect(() => {
-    if (timeLeft === 0) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) clearInterval(timer);
-        return t - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+  useEffect(() => {fetchLeaderboard()}, []);
 
   const fetchLeaderboard = async () => {
     try {
@@ -78,6 +60,26 @@ export default function QuickMathGame() {
     }
   };
 
+  useEffect(() => {
+    if (parseInt(input) === questionData.answer) {
+      setScore((s) => s + 1);
+      setInput("");
+      setQuestionData(generateQuestion());
+    }
+  }, [input, questionData.answer]);
+
+  useEffect(() => {
+    if (!gameStarted || timeLeft === 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft((t) => (t <= 1 ? 0 : t - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft, gameStarted]);
+
+  useEffect(() => {
+    if (gameStarted && timeLeft === 0) fetchLeaderboard();
+  }, [timeLeft, gameStarted]);
+
   const handleSubmitAnswer = (e) => {
     e.preventDefault();
     if (parseInt(input) === questionData.answer) {
@@ -88,27 +90,26 @@ export default function QuickMathGame() {
   };
 
   const handleSubmitScore = async () => {
-    if (!name.trim()) {
-      alert("Please enter your name!");
-      return;
-    }
-
     try {
       const res = await fetch("http://localhost:5000/math/record-score", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name, score }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ score }),
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const { highScore, rank } = await res.json();
         setSubmitted(true);
-        setLastSubmittedPlayer({ username: name, score });
+        setLastSubmittedPlayer({ username: userData.username, score });
+
+        setHighScore(highScore);
+        setRank(rank);
         fetchLeaderboard();
-        setHighScore(data.highScore);
-        setRank(data.rank);
       } else {
-        console.error("Failed to submit score");
+        console.error("Score submit failed");
       }
     } catch (err) {
       console.error("Error submitting score:", err);
@@ -116,17 +117,29 @@ export default function QuickMathGame() {
   };
 
   const resetGame = () => {
+    setGameStarted(false);
     setTimeLeft(20);
     setScore(0);
     setInput("");
     setSubmitted(false);
-    setName("");
-    setHighScore(-1);
-    setRank(-1);
+    setHighScore(null);
+    setRank(null);
     setLastSubmittedPlayer(null);
     setQuestionData(generateQuestion());
   };
 
+  const handleStart = () => {
+    setGameStarted(true);
+    setTimeLeft(20);
+    setScore(0);
+    setInput("");
+    setSubmitted(false);
+    setHighScore(null);
+    setRank(null);
+    setLastSubmittedPlayer(null);
+    setQuestionData(generateQuestion());
+  };
+  
   return (
     <div className="quick-math-wrapper">
       <div className="quick-math-board">
@@ -137,7 +150,14 @@ export default function QuickMathGame() {
 
         <div className="question-display">{questionData.question}</div>
 
-        {timeLeft > 0 ? (
+        {!gameStarted ? (
+          <button
+            onClick={handleStart}
+            className="start-button bg-blue-500 text-white px-6 py-3 rounded"
+          >
+            Start
+          </button>
+        ) : timeLeft > 0 ? (
           <form onSubmit={handleSubmitAnswer}>
             <input
               type="number"
@@ -149,19 +169,41 @@ export default function QuickMathGame() {
           </form>
         ) : (
           <>
-            <SubmissionForm
-              name={name}
-              setName={setName}
-              handleSubmit={handleSubmitScore}
-              submitted={submitted}
-              resetGame={resetGame}
-              score={score}
-              highScore={highScore}
-              rank={rank}
-            />
-            <Leaderboard leaderboard={leaderboard} lastSubmittedPlayer={lastSubmittedPlayer} />
+            <div className="submission-container"> 
+              <p>
+                Score: <strong>{score}</strong>
+                {submitted && highScore !== null && rank !== null && (
+                  <>
+                    , High Score:&nbsp;<strong>{highScore}</strong>
+                    , Rank:&nbsp;<strong>{rank}</strong>
+                  </>
+                )}
+              </p>
+
+              {!submitted ? (
+                <button
+                  onClick={handleSubmitScore}
+                  className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  Submit
+                </button>
+              ) : (
+                <button
+                  onClick={resetGame}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Play Again
+                </button>
+              )}
+            </div>
+
+            <Leaderboard
+                      leaderboard={leaderboard}
+                      lastSubmittedPlayer={lastSubmittedPlayer}
+                    />
           </>
         )}
+
       </div>
     </div>
   );
