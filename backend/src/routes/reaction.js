@@ -45,7 +45,7 @@ router.post('/record-time', authenticateToken, async (req, res) => {
     let userRank = null;
 
     if (!reactionTime) {
-        res.status(400).json({ message: 'Username and reaction time are required.' });
+        res.status(400).json({ message: 'Reaction time are required.' });
     }
 
     const username = req.user.username;
