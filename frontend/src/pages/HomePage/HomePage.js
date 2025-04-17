@@ -4,24 +4,15 @@ import './HomePage.css';
 import { ReactComponent as QuickMathIcon } from './QuickMathIcon.svg';
 import { ReactComponent as ButtonMasherIcon } from './ButtonMasherIcon.svg';
 import { ReactComponent as ReactionTimeIcon } from './ReactionTimeIcon.svg';
-import { ReactComponent as PennBenchmarkIcon } from './PennBenchmarkIcon.svg'
 
 import Header from '../../components/Header/Header';
-// import UsernameForm from '../../components/UsernameForm/UsernameForm';
 
 function HomePage() {
   const navigate = useNavigate();
 
   return (
     <div className="page-root">
-      <div className="header-row">
-        <div className="header-left">
-          <div className="hamburger">&#9776;</div>
-          <PennBenchmarkIcon className="svg-PennBenchmark" />
-          <span className="brand-name">Franklin Benchmark</span>
-        </div>
-        <Header />
-      </div>
+      <Header />
 
       <div className="top-banner">
         <h2>Measure your abilities to compete against other students at Penn!</h2>

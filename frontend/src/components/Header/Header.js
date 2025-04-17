@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import GoogleAuth from '../GoogleAuth/GoogleAuth';
+import { ReactComponent as PennBenchmarkIcon } from './PennBenchmarkIcon.svg';
 import './Header.css';
 
 const Header = () => {
@@ -12,8 +13,15 @@ const Header = () => {
     if (loading) return <div>Loading...</div>;
 
     return (
-        <header className="header">
-            {/* <div className="left-section"></div> */}
+        < header className="header-row">
+            <div className="header-left">
+                <div className="hamburger">&#9776;</div>
+                    <Link to="/" className="brand-link">
+                        <PennBenchmarkIcon className="svg-PennBenchmark" />
+                        <span className="brand-name">Franklin&nbsp;Benchmark</span>
+                    </Link>
+                </div>
+        
             <div className="right-section">
                 {userData && userData.username ? (
                     <>

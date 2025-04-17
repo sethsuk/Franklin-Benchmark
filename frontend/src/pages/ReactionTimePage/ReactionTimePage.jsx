@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import Header from "../../components/Header/Header";
 import { AuthContext } from "../../context/AuthContext";
 import "./ReactionTimePage.css";
-import { ReactComponent as PennBenchmarkIcon } from "./PennBenchmarkIcon.svg";
 
 const GAME_STATES = {
   WAITING: "waiting",
@@ -212,15 +211,7 @@ function ReactionTimePage() {
 
   return (
     <div className={`reaction-page-wrapper ${gameState.toLowerCase()}-bg`}>
-      {/* top navigation */}
-      <div className="header-row">
-        <div className="header-left">
-          <div className="hamburger">&#9776;</div>
-          <PennBenchmarkIcon className="svg-PennBenchmark" />
-          <span className="brand-name">Franklin Benchmark</span>
-        </div>
-        <Header />
-      </div>
+      <Header />
 
       {/* game */}
       <div className="reaction-container">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Header from "../../components/Header/Header";
-import { ReactComponent as PennBenchmarkIcon } from './PennBenchmarkIcon.svg';
 import "./ButtonMasher.css";
 
 export default function ButtonMasherPage() {
@@ -93,14 +92,7 @@ export default function ButtonMasherPage() {
 
   return (
     <div className="buttonmasher-wrapper">
-      <div className="header-row">
-        <div className="header-left">
-          <div className="hamburger">&#9776;</div>
-          <PennBenchmarkIcon className="svg-PennBenchmark" />
-          <span className="brand-name">Franklin Benchmark</span>
-        </div>
-        <Header userData={{}} setUserData={() => {}} />
-      </div>
+      <Header/>
 
       <div className="buttonmasher-container">
         <div className="duration-buttons">
