@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
+import { AuthContext } from '../../context/AuthContext';
 
-const GoogleAuth = ({ setUserData }) => {
+const GoogleAuth = () => {
+    const { setUserData, setToken } = useContext(AuthContext);
+
     const handleLoginSuccess = (credentialResponse) => {
         const idToken = credentialResponse.credential;
 
@@ -12,13 +15,10 @@ const GoogleAuth = ({ setUserData }) => {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.status === 'existing_user') {
-                localStorage.setItem('token', data.token);
-                setUserData(data.user);
-            } else if (data.status === 'new_user') {
-                localStorage.setItem('tempToken', data.token);
-                setUserData(data);
-            }
+            // stash the token so /verify works immediately
+            localStorage.setItem('token', data.token);
+            setToken(data.token);
+            setUserData(data.user);   // user.username == null for brand‑new accounts
         })
         .catch(error => console.error('Login failed:', error));
         };

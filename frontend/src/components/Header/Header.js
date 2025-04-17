@@ -13,11 +13,7 @@ const Header = () => {
 
     return (
         <header className="header">
-            <div className="left-section">
-                <button className="home-button" onClick={() => navigate('/')}>
-                    Franklin Benchmark
-                </button>
-            </div>
+            {/* <div className="left-section"></div> */}
             <div className="right-section">
                 {userData && userData.username ? (
                     <>

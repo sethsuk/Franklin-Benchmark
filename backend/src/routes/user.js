@@ -22,10 +22,10 @@ router.post('/auth/google', async (req, res) => {
             audience: client_id,
         });
 
-        const { email, sub: googleId } = ticket.getPayload();
+        const { email, sub: google_id } = ticket.getPayload();
 
         // Checks if user is in the db
-        const userQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+        const userQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
 
         if (userQuery.rows.length > 0) {
             // User exists
@@ -41,12 +41,12 @@ router.post('/auth/google', async (req, res) => {
         } else {
             // New user
             const token = jwt.sign(
-                { googleId, email },
+                { google_id, email },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
 
-            res.json({ status: 'new_user', user: { googleId, email, username: null, id: null }, token });
+            res.json({ status: 'new_user', user: { google_id, email, username: null, id: null }, token });
         }
 
     } catch (err) {
@@ -59,7 +59,7 @@ router.post('/auth/google', async (req, res) => {
 router.post('/auth/register-username', async (req, res) => {
     console.log('\n\nRegister-username Called');
 
-    const { googleId, username, email } = req.body;
+    const { google_id, username, email } = req.body;
 
     try {
         // Validate unique username
@@ -70,24 +70,24 @@ router.post('/auth/register-username', async (req, res) => {
             return res.status(409).json({ message: 'Username already taken' });
         }
 
-        // Validate unique googleId
-        const googleIdQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+        // Validate unique google_id
+        const googleIdQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
 
         if (googleIdQuery.rows.length > 0) {
-            console.log('\n\nGoogleId already exists');
-            return res.status(409).json({ message: 'GoogleId already exists' });
+            console.log('\n\ngoogle_id already exists');
+            return res.status(409).json({ message: 'google_id already exists' });
         }
 
         // Insert new user to DB
         const newUserQuery = await pool.query(
             'INSERT INTO users (google_id, username, email) VALUES ($1, $2, $3) RETURNING *',
-            [googleId, username, email]
+            [google_id, username, email]
         );
 
         const newUser = newUserQuery.rows[0];
 
         const token = jwt.sign(
-            { userId: newUser.id, username: newUser.username },
+            { google_id: newUser.google_id, username: newUser.username },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
@@ -124,14 +124,14 @@ router.get('/verify', authenticateToken, (req, res) => {
 // GET endpoint => returns how old the account is in days
 router.get('/account-age', authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const google_id = req.user.google_id;
 
         // queries DB to find the user's account age
         const result = await pool.query(`
             SELECT (CURRENT_DATE - created_at::date) AS account_age
             FROM users
-            WHERE id = $1
-            `, [userId]);
+            WHERE google_id = $1
+            `, [google_id]);
 
         // No result from DB
         if (result.rows.length === 0) {

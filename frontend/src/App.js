@@ -12,7 +12,7 @@ import UsernameModal from './components/UsernameModal/UsernameModal';
 function App() {
   return (
     <AuthProvider>
-      <Header />
+      {/* <Header /> */}
       <UsernameModal />
       <Routes>
         <Route path="/" element={<HomePage />} />

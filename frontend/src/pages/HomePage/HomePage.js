@@ -7,7 +7,7 @@ import { ReactComponent as ReactionTimeIcon } from './ReactionTimeIcon.svg';
 import { ReactComponent as PennBenchmarkIcon } from './PennBenchmarkIcon.svg'
 
 import Header from '../../components/Header/Header';
-import UsernameForm from '../../components/UsernameForm/UsernameForm';
+// import UsernameForm from '../../components/UsernameForm/UsernameForm';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ function HomePage() {
           <PennBenchmarkIcon className="svg-PennBenchmark" />
           <span className="brand-name">Franklin Benchmark</span>
         </div>
-        <Header userData={userData} setUserData={setUserData} />
+        <Header />
       </div>
 
       <div className="top-banner">
@@ -61,7 +61,7 @@ function HomePage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

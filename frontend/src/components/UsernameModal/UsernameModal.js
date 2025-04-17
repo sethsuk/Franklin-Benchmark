@@ -1,48 +1,23 @@
-import React, { useContext, useState, useEffect } from 'react';
+// src/components/UsernameModal/UsernameModal.js
+import React, { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import UsernameForm from '../UsernameForm/UsernameForm';
+import UsernameForm from '../UsernameForm/UsernameForm';     // ← use the real form
 
 const UsernameModal = () => {
-    const { userData } = useContext(AuthContext);
-    const [showModal, setShowModal] = useState(false);
+  const { userData } = useContext(AuthContext);
 
-    useEffect(() => {
-        // Show modal if the user is new... need to create a new username
-        if (userData && userData.status === 'new_user') {
-            setShowModal(true);
-        } else {
-            setShowModal(false);
-        }
-    }, [userData]);
+  // Show the modal only when the user is signed‑in but has no username yet.
+  if (!userData || userData.username) return null;
 
-    if (!showModal) return null;
-
-    return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-        }}>
-            <div style={{
-                background: 'white',
-                padding: '2rem',
-                borderRadius: '8px',
-                minWidth: '300px',
-            }}>
-                <UsernameForm />
-                <button onClick={() => setShowModal(false)} style={{ marginTop: '1rem' }}>
-                    Cancel
-                </button>
-            </div>
-        </div>
-    );
+  return (
+    <div className="username-modal">
+      <div className="modal-content">
+        <h2>Welcome!</h2>
+        <p>Please choose a username:</p>
+        <UsernameForm />
+      </div>
+    </div>
+  );
 };
 
 export default UsernameModal;

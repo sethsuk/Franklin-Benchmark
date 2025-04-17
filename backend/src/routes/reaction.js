@@ -10,11 +10,11 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     // null token
-    if (!token) return res.sendStatus(401);
+    if (!token) return res.status(401).json({ message: "Not logged in" });
 
     // verify token
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
+        if (err) return res.status(403).json({ message: "Invalid token" });
 
         req.user = user; // userId and username will be available
         next();
@@ -38,15 +38,17 @@ router.get('/leaderboard', async (req, res) => {
 
 // Record game session. Frontend calculates the reaction time
 // Takes in username and reaction time
-router.post('/record-time', async (req, res) => {
+router.post('/record-time', authenticateToken, async (req, res) => {
     console.log("\n\nReaction Game Recorded", req.body);
 
-    const { username, reactionTime } = req.body;
+    const { reactionTime } = req.body;
     let userRank = null;
 
-    if (!username || !reactionTime) {
+    if (!reactionTime) {
         res.status(400).json({ message: 'Username and reaction time are required.' });
     }
+
+    const username = req.user.username;
 
     try {
         // Add user's time to DB

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 
 const UsernameForm = () => {
-    const { userData, setUserData } = useContext(AuthContext);
+    const { userData, setUserData, setToken } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
 
@@ -22,10 +22,8 @@ const UsernameForm = () => {
         })
         .then(data => {
             console.log(data.message);
-            // store the new JWT token with username in localStorage
-            localStorage.setItem('token', data.token);
-            // remove the old temp token without username
-            localStorage.removeItem('tempToken');
+            setToken(data.token);
+            
             // update the auth context with the new username
             setUserData({ ...userData, username });
         })
