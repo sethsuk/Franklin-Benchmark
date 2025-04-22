@@ -1,7 +1,7 @@
-// src/components/UsernameModal/UsernameModal.js
 import React, { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import UsernameForm from '../UsernameForm/UsernameForm';     // ← use the real form
+import UsernameForm from '../UsernameForm/UsernameForm';
+import './UsernameModal.css';
 
 const UsernameModal = () => {
   const { userData } = useContext(AuthContext);
