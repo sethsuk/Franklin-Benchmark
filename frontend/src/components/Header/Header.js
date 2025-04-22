@@ -15,7 +15,7 @@ const Header = () => {
     return (
         < header className="header-row">
             <div className="header-left">
-                <div className="hamburger">&#9776;</div>
+                <div></div>
                     <Link to="/" className="brand-link">
                         <PennBenchmarkIcon className="svg-PennBenchmark" />
                         <span className="brand-name">Franklin&nbsp;Benchmark</span>
