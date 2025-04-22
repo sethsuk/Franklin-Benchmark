@@ -3,6 +3,7 @@ import Header from "../../components/Header/Header";
 import { AuthContext } from "../../context/AuthContext";
 
 import "./ButtonMasher.css";
+import { ReactComponent as MashButtonSVG } from "./BUTTON.svg";
 
 export default function ButtonMasherPage() {
   const { token, userData } = useContext(AuthContext);
@@ -119,12 +120,12 @@ export default function ButtonMasherPage() {
               <p className="instruction">
                 Click the <span className="red">button</span> as fast as you can!
               </p>
-              <button
-                className="start-button"
+              <div
+                className="mash-button"
                 onClick={gameStarted ? () => setClickCount(c => c + 1) : handleStart}
               >
-                {gameStarted ? "CLICK!" : "START"}
-              </button>
+              {gameStarted ? <MashButtonSVG /> : <span className="start-label">START</span>}
+              </div>
               <div className="stats">
                 <span>Time: {timeLeft} s</span>
                 <span>High Score: {clickCount}</span>

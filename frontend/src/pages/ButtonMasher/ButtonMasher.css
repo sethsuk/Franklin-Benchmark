@@ -172,3 +172,32 @@ body, html {
     text-align: center;
     margin-top: 10px;
   }  
+
+  .mash-button {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin: 20px auto;
+    transition: transform 0.1s ease-in-out;
+  }
+  
+  .mash-button svg {
+    width: 180px;
+    height: auto;
+  }
+  
+  .mash-button:active {
+    transform: scale(0.97);
+  }
+  
+  .start-label {
+    font-size: 1.75rem;
+    font-weight: bold;
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+  }
+  
