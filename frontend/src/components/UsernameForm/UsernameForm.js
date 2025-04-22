@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import './UsernameForm.css'
 
 const UsernameForm = () => {
     const { userData, setUserData, setToken } = useContext(AuthContext);
@@ -31,7 +32,7 @@ const UsernameForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="username-form" onSubmit={handleSubmit}>
             <input 
                 type="text"
                 value={username}
@@ -40,7 +41,7 @@ const UsernameForm = () => {
                 required
             />
             <button type="submit">Create Account</button>
-            {error && <p>{error}</p>}
+            {error && <p className="error-message">{error}</p>}
         </form>
     );
 };
