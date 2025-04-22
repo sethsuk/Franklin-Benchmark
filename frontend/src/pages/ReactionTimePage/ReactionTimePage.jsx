@@ -18,8 +18,8 @@ export default function ReactionTimePage() {
 
   const [submitted, setSubmitted]   = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [highScore, setHighScore]   = useState(-1);
-  const [rank, setRank]             = useState(-1);
+  const [highScore, setHighScore]   = useState(null);
+  const [rank, setRank]             = useState(null);
 
   const timeoutIdRef = useRef(null);
   const [startTime, setStartTime] = useState(0);
@@ -79,8 +79,8 @@ export default function ReactionTimePage() {
     setGameState(GAME_STATES.WAITING);
     setReactionTime(null);
     setSubmitted(false);
-    setHighScore(-1);
-    setRank(-1);
+    setHighScore(null);
+    setRank(null);
   };
 
   const handleSubmit = async () => {
@@ -116,13 +116,13 @@ export default function ReactionTimePage() {
   const SubmissionPanel = () => (
     <div className="submission-container">
       <p>
-        Your Reaction Time:&nbsp;<strong>{reactionTime} ms</strong>
-        {submitted && highScore !== -1 && (
-          <>
-            &nbsp;— High Score:&nbsp;<strong>{highScore}</strong>&nbsp;
-            (rank&nbsp;<strong>{rank}</strong>)
-          </>
-        )}
+        Score: <strong>{reactionTime}</strong>
+          {submitted && highScore !== null && rank !== null && (
+            <>
+              , High Score:&nbsp;<strong>{highScore}</strong>
+              , Rank:&nbsp;<strong>{rank}</strong>
+            </>
+          )}
       </p>
 
       {!submitted ? (
