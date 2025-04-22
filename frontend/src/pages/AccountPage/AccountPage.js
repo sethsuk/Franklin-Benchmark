@@ -1,139 +1,98 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Header from "../../components/Header/Header";
 import { AuthContext } from '../../context/AuthContext';
+import './AccountPage.css';
+
+import { ReactComponent as QuickMathIcon } from './QuickMathIcon.svg';
+import { ReactComponent as ButtonMasherIcon } from './ButtonMasherIcon.svg';
+import { ReactComponent as ReactionTimeIcon } from './ReactionTimeIcon.svg';
 
 const AccountPage = () => {
-    const [accountAge, setAccountAge] = useState(null);
-    const [masherData, setMasherData] = useState({ highScore: null, rank: null });
-    const [reactionData, setReactionData] = useState({ highScore: null, rank: null });
-    const [mathData, setMathData] = useState({ highScore: null, rank: null });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [accountAge, setAccountAge] = useState(null);
+  const [masherData, setMasherData] = useState({ highScore: null, rank: null });
+  const [reactionData, setReactionData] = useState({ highScore: null, rank: null });
+  const [mathData, setMathData] = useState({ highScore: null, rank: null });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const { token } = useContext(AuthContext);
+  const { token, userData } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch account age
-                const ageResponse = await fetch('http://localhost:5000/user/account-age', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchWithAuth = (url) =>
+          fetch(url, {
+            headers: { Authorization: `Bearer ${token}` },
+          }).then((res) => res.json());
 
-                const ageData = await ageResponse.json();
+        const [ageData, masher, reaction, math] = await Promise.all([
+          fetchWithAuth("http://localhost:5000/user/account-age"),
+          fetchWithAuth("http://localhost:5000/masher/user-rank"),
+          fetchWithAuth("http://localhost:5000/reaction/user-rank"),
+          fetchWithAuth("http://localhost:5000/math/user-rank"),
+        ]);
 
-                if(ageResponse.ok) {
-                    setAccountAge(ageData.account_age);
-                } else {
-                    throw new Error(ageData.message || 'Failed to fetch account age');
-                }
+        setAccountAge(ageData.account_age);
+        setMasherData(masher);
+        setReactionData(reaction);
+        setMathData(math);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load account data.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-                // Fetch Masher leaderboard
-                const masherResponse = await fetch('http://localhost:5000/masher/user-rank', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+    fetchData();
+  }, [token]);
 
-                const masherRankData = await masherResponse.json();
+  if (loading) return <p>Loading account data...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-                if(masherResponse.ok) {
-                    setMasherData({
-                        highScore: masherRankData.highScore,
-                        rank: masherRankData.rank,
-                      });
-                } else {
-                    throw new Error(masherRankData.error || 'Failed to fetch masher ranking');
-                }
+  return (
+    <div className="dashboard-wrapper">
+      <Header />
 
-                // Fetch Reaction leaderboard
-                const reactionResponse  = await fetch('http://localhost:5000/reaction/user-rank', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const reactionRankData = await reactionResponse.json();
-
-                if(reactionResponse.ok) {
-                    setReactionData({
-                        highScore: reactionRankData.highScore,
-                        rank: reactionRankData.rank,
-                      });
-                } else {
-                    throw new Error(reactionRankData.error || 'Failed to fetch reaction time ranking');
-                }
-
-                // Fetch Math leaderboard
-                const mathResponse  = await fetch('http://localhost:5000/math/user-rank', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const mathRankData = await mathResponse.json();
-
-                if(mathResponse.ok) {
-                    setMathData({
-                        highScore: mathRankData.highScore,
-                        rank: mathRankData.rank,
-                      });
-                } else {
-                    throw new Error(mathRankData.error || 'Failed to fetch math ranking');
-                }
-
-            } catch (err) {
-                console.error(err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [token]);
-
-    // placeholder while fetching data
-    if (loading) return <p>Loading account data...</p>;
-
-    if (error) return <p>Error: {error}</p>;
-
-    return (
-        <div className="account-page">
-        <Header/>
-          <h1>Account Details</h1>
-    
-          <section className="account-age-section">
-            <h2>Account Age</h2>
-            {accountAge !== null ? (
-              <p>Joined {accountAge} day{accountAge !== 1 ? 's' : ''} ago</p>
-            ) : (
-              <p>Account age not available.</p>
-            )}
-          </section>
-    
-          <section className="minigame-rankings">
-            <h2>Leaderboard</h2>
-            <div className="minigame">
-              <h3>Button Masher</h3>
-              <p>High Score: {masherData.highScore !== null ? masherData.highScore : 'No records'}</p>
-              <p>Rank: {masherData.rank !== null ? masherData.rank : 'No records'}</p>
-            </div>
-            <div className="minigame">
-              <h3>Reaction Time</h3>
-              <p>High Score: {reactionData.highScore !== null ? reactionData.highScore : 'No records'}</p>
-              <p>Rank: {reactionData.rank !== null ? reactionData.rank : 'No records'}</p>
-            </div>
-            <div className="minigame">
-              <h3>Quick Math</h3>
-              <p>High Score: {mathData.highScore !== null ? mathData.highScore : 'No records'}</p>
-              <p>Rank: {mathData.rank !== null ? mathData.rank : 'No records'}</p>
-            </div>
-          </section>
+      <div className="profile-card">
+        <div className="profile-info">
+          <h2>{userData?.username || "User"}</h2>
+          <p>Joined {accountAge} day{accountAge !== 1 ? "s" : ""} ago</p>
         </div>
-      );
+      </div>
+
+      <div className="leaderboard-section">
+        <h3>Games</h3>
+
+        <div className="leaderboard-row">
+          <div className="game-name">
+            <QuickMathIcon className="game-icon" />
+            Quick Math
+          </div>
+          <div>{mathData.highScore ?? "—"}</div>
+          <div>Rank #{mathData.rank ?? "—"}</div>
+        </div>
+
+        <div className="leaderboard-row">
+          <div className="game-name">
+            <ButtonMasherIcon className="game-icon" />
+            Button Masher
+          </div>
+          <div>{masherData.highScore ?? "—"}</div>
+          <div>Rank #{masherData.rank ?? "—"}</div>
+        </div>
+
+        <div className="leaderboard-row">
+          <div className="game-name">
+            <ReactionTimeIcon className="game-icon" />
+            Reaction Time
+          </div>
+          <div>{reactionData.highScore ? `${reactionData.highScore} ms` : "—"}</div>
+          <div>Rank #{reactionData.rank ?? "—"}</div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AccountPage;
