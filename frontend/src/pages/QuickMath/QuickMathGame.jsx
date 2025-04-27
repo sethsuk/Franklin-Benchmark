@@ -35,7 +35,7 @@ export default function QuickMathGame() {
   const { token, userData } = useContext(AuthContext);
   const [loginPrompt, setLoginPrompt] = useState(false);
 
-  const [timeLeft, setTimeLeft] = useState(20);
+  const [timeLeft, setTimeLeft] = useState(120);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [questionData, setQuestionData] = useState(generateQuestion());
