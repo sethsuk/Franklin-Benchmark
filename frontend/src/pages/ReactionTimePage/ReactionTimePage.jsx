@@ -25,6 +25,8 @@ export default function ReactionTimePage() {
   const timeoutIdRef = useRef(null);
   const [startTime, setStartTime] = useState(0);
 
+  const [loginPrompt, setLoginPrompt] = useState(false);
+
   useEffect(() => { fetchLeaderboard(); }, []);
 
   useEffect(() => {
@@ -89,7 +91,8 @@ export default function ReactionTimePage() {
 
   const handleSubmit = async () => {
     if (!token) {
-      alert("Log in to record scores.");
+      setLoginPrompt(true);
+      setTimeout(() => setLoginPrompt(false), 3000);
       return;
     }
 
@@ -130,9 +133,17 @@ export default function ReactionTimePage() {
       </p>
 
       {!submitted ? (
-        <button className="submit-button" onClick={handleSubmit}>
-          Submit Score
-        </button>
+        <>
+          <button className="submit-button" onClick={handleSubmit}>
+            Submit Score
+          </button>
+
+          {loginPrompt && (
+            <p className="login-prompt-inline">
+              Please <strong>log in</strong> to submit your score.
+            </p>
+          )}
+        </>
       ) : (
         <>
           <p className="submitted-message">Submitted!</p>

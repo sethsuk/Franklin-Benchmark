@@ -62,3 +62,21 @@
     transform: translateY(0);
   }
   
+  .logout-button {
+    background-color: transparent;
+    color: #4D88F9;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border: 2px solid #4D88F9;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-left: 0.5rem;
+  }
+  
+  .logout-button:hover {
+    background-color: #4D88F9;
+    color: #ffffff;
+  }

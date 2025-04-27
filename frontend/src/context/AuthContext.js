@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
 
   const [loading, setLoading] = useState(!!token);
-  const [error,   setError]   = useState(null);
+  const [error, setError]   = useState(null);
 
   const setToken = (newToken) => {
     if (newToken) {

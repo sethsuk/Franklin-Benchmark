@@ -149,3 +149,11 @@ input[type=number]::-webkit-outer-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.login-prompt-inline {
+  font-family: 'Montserrat', sans-serif;
+  color: #4D88F9;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-align: center;
+}

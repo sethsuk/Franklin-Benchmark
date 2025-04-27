@@ -252,3 +252,11 @@ html, body {
   color: white;
   margin-top: 0.5rem;
 }
+
+.login-prompt-inline {
+  color: #4D88F9;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-align: center;
+}

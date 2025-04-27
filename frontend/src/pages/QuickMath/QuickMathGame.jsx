@@ -33,6 +33,7 @@ function generateQuestion() {
 
 export default function QuickMathGame() {
   const { token, userData } = useContext(AuthContext);
+  const [loginPrompt, setLoginPrompt] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState(20);
   const [score, setScore] = useState(0);
@@ -91,6 +92,12 @@ export default function QuickMathGame() {
   };
 
   const handleSubmitScore = async () => {
+    if (!token) {
+      setLoginPrompt(true);
+      setTimeout(() => setLoginPrompt(false), 3000);
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/math/record-score", {
         method: "POST",
@@ -190,12 +197,20 @@ export default function QuickMathGame() {
                 </p>
 
                 {!submitted ? (
-                  <button
-                    onClick={handleSubmitScore}
-                    className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
-                  >
-                    Submit
-                  </button>
+                  <>
+                    <button
+                      onClick={handleSubmitScore}
+                      className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
+                    >
+                      Submit
+                    </button>
+
+                    {loginPrompt && (
+                      <p className="login-prompt-inline">
+                        Please <strong>log in</strong> to submit your score.
+                      </p>
+                    )}
+                  </>
                 ) : (
                   <button
                     onClick={resetGame}

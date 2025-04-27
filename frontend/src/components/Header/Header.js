@@ -7,10 +7,19 @@ import './Header.css';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { userData, loading } = useContext(AuthContext);
+    const { userData, loading, setToken, setUserData } = useContext(AuthContext);
 
     // Show loading indicator while verifying token
     if (loading) return <div>Loading...</div>;
+
+    const handleLogout = () => {
+        // clear token & user from context & localStorage
+        setToken(null);
+        setUserData(null);
+
+        // redirect to home page
+        navigate('/');
+    };
 
     return (
         < header className="header-row">
@@ -29,6 +38,7 @@ const Header = () => {
                         <button className="account-button" onClick={() => navigate('/account')}>
                             Account
                         </button>
+                        <button className='logout-button' onClick={handleLogout}>Log Out</button>
                     </>
                 ) : (
                     <GoogleAuth />

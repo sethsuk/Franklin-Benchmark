@@ -23,6 +23,8 @@ export default function ButtonMasherPage() {
   const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
 
+  const [loginPrompt, setLoginPrompt] = useState(false);
+
   const fetchLeaderboard = async () => {
     try {
       const res = await fetch("http://localhost:5000/masher/leaderboard");
@@ -69,6 +71,12 @@ export default function ButtonMasherPage() {
   };
 
   const handleSubmit = async () => {
+    if (!token) {
+      setLoginPrompt(true);
+      setTimeout(() => setLoginPrompt(false), 3000);
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/masher/record-mashes", {
         method: "POST",
@@ -132,9 +140,17 @@ export default function ButtonMasherPage() {
               </p>
 
               {!submitted ? (
-                <button className="start-button" onClick={handleSubmit}>
-                  Submit
-                </button>
+                <>
+                  <button className="start-button" onClick={handleSubmit}>
+                    Submit
+                  </button>
+
+                  {loginPrompt && (
+                    <p className="login-prompt-inline">
+                      Please <strong>log in</strong> to submit your score.
+                    </p>
+                  )}
+                </>
               ) : (
                 <>
                   <p className="submitted-message">Submitted!</p>
