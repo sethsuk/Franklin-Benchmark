@@ -8,18 +8,19 @@ const GAME_STATES = {
   READY: "ready",
   CLICKED: "clicked",
   SUBMIT: "submit",
+  TOO_SOON: "too_soon",
 };
 
 export default function ReactionTimePage() {
   const { token, userData } = useContext(AuthContext);
 
-  const [gameState, setGameState]   = useState(GAME_STATES.WAITING);
+  const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [reactionTime, setReactionTime] = useState(null);
 
-  const [submitted, setSubmitted]   = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [highScore, setHighScore]   = useState(null);
-  const [rank, setRank]             = useState(null);
+  const [highScore, setHighScore] = useState(null);
+  const [rank, setRank] = useState(null);
 
   const timeoutIdRef = useRef(null);
   const [startTime, setStartTime] = useState(0);
@@ -45,7 +46,7 @@ export default function ReactionTimePage() {
 
   const fetchLeaderboard = async () => {
     try {
-      const res  = await fetch("http://localhost:5000/reaction/leaderboard");
+      const res = await fetch("http://localhost:5000/reaction/leaderboard");
       const data = await res.json();
       setLeaderboard(data.leaderboard || []);
     } catch (err) {
@@ -60,14 +61,17 @@ export default function ReactionTimePage() {
         break;
 
       case GAME_STATES.READY:
-        alert("Too soon! Wait for green.");
         clearTimeout(timeoutIdRef.current);
-        setGameState(GAME_STATES.WAITING);
+        setGameState(GAME_STATES.TOO_SOON);
         break;
 
       case GAME_STATES.CLICKED:
         setReactionTime(Date.now() - startTime);
         setGameState(GAME_STATES.SUBMIT);
+        break;
+
+      case GAME_STATES.TOO_SOON:
+        resetGame();
         break;
 
       default:
@@ -91,10 +95,10 @@ export default function ReactionTimePage() {
 
     try {
       const res = await fetch("http://localhost:5000/reaction/record-time", {
-        method:  "POST",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization:  `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ reactionTime }),
       });
@@ -116,23 +120,23 @@ export default function ReactionTimePage() {
   const SubmissionPanel = () => (
     <div className="submission-container">
       <p>
-        Score: <strong>{reactionTime}</strong>
-          {submitted && highScore !== null && rank !== null && (
-            <>
-              , High Score:&nbsp;<strong>{highScore}</strong>
-              , Rank:&nbsp;<strong>{rank}</strong>
-            </>
-          )}
+        Score: <strong>{reactionTime}</strong> ms
+        {submitted && highScore !== null && rank !== null && (
+          <>
+            , High Score: <strong>{highScore}</strong>
+            , Rank: <strong>{rank}</strong>
+          </>
+        )}
       </p>
 
       {!submitted ? (
         <button className="submit-button" onClick={handleSubmit}>
-          Submit Score
+          Submit Score
         </button>
       ) : (
         <>
           <p className="submitted-message">Submitted!</p>
-          <button onClick={resetGame}>Play Again?</button>
+          <button onClick={resetGame}>Play Again?</button>
         </>
       )}
     </div>
@@ -153,11 +157,18 @@ export default function ReactionTimePage() {
       )}
 
       {gameState === GAME_STATES.READY && (
-        <p className="reaction-prompt">Wait&nbsp;for&nbsp;Green</p>
+        <p className="reaction-prompt">Wait for Green</p>
       )}
 
       {gameState === GAME_STATES.CLICKED && (
         <p className="reaction-prompt">Click!</p>
+      )}
+
+      {gameState === GAME_STATES.TOO_SOON && (
+        <div className="too-soon-text">
+          <p className="main-text">You Clicked Too Early!</p>
+          <p className="sub-text">Click anywhere to restart.</p>
+        </div>
       )}
 
       {gameState === GAME_STATES.SUBMIT && <SubmissionPanel />}
@@ -165,28 +176,21 @@ export default function ReactionTimePage() {
   );
 
   const Leaderboard = () => (
-    <div className="leaderboard-card">
+    <div className="leaderboard-container">
       <h3>Leaderboard</h3>
       <ul className="leaderboard-list">
         {leaderboard.length === 0 && <p>No scores yet.</p>}
         {leaderboard.map((player, idx) => {
-          const isYou =
-            userData && player.username === userData.username;
-
+          const isYou = userData && player.username === userData.username;
           return (
             <li
               key={idx}
-              className={`ranked-item rank-${idx + 1}${
-                isYou ? " highlighted-row" : ""
+              className={`leaderboard-item rank-${idx + 1} ${
+                isYou ? "highlighted" : ""
               }`}
             >
-              <span className="rank-number">{idx + 1}.</span>
-              <span
-                className={`player-name${isYou ? " highlighted-username" : ""}`}
-              >
-                {player.username}
-              </span>
-              <span className="score">{player.reactionTime} ms</span>
+              <span>{idx + 1}. {player.username}</span>
+              <span>{player.reactionTime} ms</span>
             </li>
           );
         })}
@@ -200,7 +204,9 @@ export default function ReactionTimePage() {
       <div className="reaction-container">
         <ReactionBox />
       </div>
-      <Leaderboard />
+      <div className="leaderboard-wrapper">
+        <Leaderboard />
+      </div>
     </div>
   );
 }

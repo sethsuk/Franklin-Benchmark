@@ -66,30 +66,44 @@ const AccountPage = () => {
 
         <div className="leaderboard-row">
           <div className="game-name">
-            <QuickMathIcon className="game-icon" />
-            Quick Math
+              <QuickMathIcon className="game-icon" />
+              Quick Math
+            </div>
+            <div className="score">
+              <span className="bold-text">High Score:</span> {mathData.highScore ?? "—"} calcs
+            </div>
+            <div className="rank">
+              <span className="bold-text">Rank #</span>{mathData.rank ?? "—"}
+            </div>
           </div>
-          <div>{mathData.highScore ?? "—"}</div>
-          <div>Rank #{mathData.rank ?? "—"}</div>
-        </div>
 
-        <div className="leaderboard-row">
-          <div className="game-name">
-            <ButtonMasherIcon className="game-icon" />
-            Button Masher
+          <div className="leaderboard-row">
+            <div className="game-name">
+              <ButtonMasherIcon className="game-icon" />
+              Button Masher
+            </div>
+            <div className="score">
+              <span className="bold-text">High Score:</span> {masherData.highScore ?? "—"} clicks
+            </div>
+            <div className="rank">
+              <span className="bold-text">Rank #</span>{masherData.rank ?? "—"}
+            </div>
           </div>
-          <div>{masherData.highScore ?? "—"}</div>
-          <div>Rank #{masherData.rank ?? "—"}</div>
-        </div>
 
-        <div className="leaderboard-row">
-          <div className="game-name">
-            <ReactionTimeIcon className="game-icon" />
-            Reaction Time
+          <div className="leaderboard-row">
+            <div className="game-name">
+              <ReactionTimeIcon className="game-icon" />
+              Reaction Time
+            </div>
+            <div className="score">
+              <span className="bold-text">High Score:</span> {reactionData.highScore ? `${reactionData.highScore} ms` : "—"}
+            </div>
+            <div className="rank">
+              <span className="bold-text">Rank #</span>{reactionData.rank ?? "—"}
+            </div>
           </div>
-          <div>{reactionData.highScore ? `${reactionData.highScore} ms` : "—"}</div>
-          <div>Rank #{reactionData.rank ?? "—"}</div>
-        </div>
+
+
       </div>
     </div>
   );

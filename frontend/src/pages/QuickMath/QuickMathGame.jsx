@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import Leaderboard from "./Leaderboard";
 import "./QuickMath.css";
 
 function generateQuestion() {
@@ -24,7 +23,7 @@ function generateQuestion() {
       b = Math.floor(Math.random() * 99) + 2;
       answer = a * b;
       break;
-    default: // ÷
+    default:
       b = Math.floor(Math.random() * 99) + 2;
       answer = Math.floor(Math.random() * 11) + 2;
       a = b * answer;
@@ -48,8 +47,6 @@ export default function QuickMathGame() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
 
-  useEffect(() => {fetchLeaderboard()}, []);
-
   const fetchLeaderboard = async () => {
     try {
       const res = await fetch("http://localhost:5000/math/leaderboard");
@@ -59,6 +56,10 @@ export default function QuickMathGame() {
       console.error("Failed to fetch leaderboard:", err);
     }
   };
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
 
   useEffect(() => {
     if (parseInt(input) === questionData.answer) {
@@ -104,7 +105,6 @@ export default function QuickMathGame() {
         const { highScore, rank } = await res.json();
         setSubmitted(true);
         setLastSubmittedPlayer({ username: userData.username, score });
-
         setHighScore(highScore);
         setRank(rank);
         fetchLeaderboard();
@@ -139,7 +139,14 @@ export default function QuickMathGame() {
     setLastSubmittedPlayer(null);
     setQuestionData(generateQuestion());
   };
-  
+
+  const getRankClass = (index) => {
+    if (index === 0) return "gold";
+    if (index === 1) return "silver";
+    if (index === 2) return "bronze";
+    return "";
+  };
+
   return (
     <div className="quick-math-wrapper">
       <div className="quick-math-board">
@@ -148,63 +155,84 @@ export default function QuickMathGame() {
           <span>Score {score}</span>
         </div>
 
-        <div className="question-display">{questionData.question}</div>
-
         {!gameStarted ? (
-          <button
-            onClick={handleStart}
-            className="start-button bg-blue-500 text-white px-6 py-3 rounded"
-          >
-            Start
-          </button>
-        ) : timeLeft > 0 ? (
-          <form onSubmit={handleSubmitAnswer}>
-            <input
-              type="number"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="math-input"
-              autoFocus
-            />
-          </form>
+          <div className="start-screen">
+            <button
+              onClick={handleStart}
+              className="start-button bg-blue-500 text-white px-6 py-3 rounded"
+            >
+              Click to Start!
+            </button>
+          </div>
         ) : (
-          <>
-            <div className="submission-container"> 
-              <p>
-                Score: <strong>{score}</strong>
-                {submitted && highScore !== null && rank !== null && (
-                  <>
-                    , High Score:&nbsp;<strong>{highScore}</strong>
-                    , Rank:&nbsp;<strong>{rank}</strong>
-                  </>
+          <div className="question-screen">
+            <div className="question-display">{questionData.question}</div>
+            {timeLeft > 0 ? (
+              <form onSubmit={handleSubmitAnswer}>
+                <input
+                  type="number"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  className="math-input"
+                  autoFocus
+                />
+              </form>
+            ) : (
+              <div className="submission-container">
+                <p>
+                  Score: <strong>{score}</strong>
+                  {submitted && highScore !== null && rank !== null && (
+                    <>
+                      , High Score:&nbsp;<strong>{highScore}</strong>
+                      , Rank:&nbsp;<strong>{rank}</strong>
+                    </>
+                  )}
+                </p>
+
+                {!submitted ? (
+                  <button
+                    onClick={handleSubmitScore}
+                    className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    Submit
+                  </button>
+                ) : (
+                  <button
+                    onClick={resetGame}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Play Again
+                  </button>
                 )}
-              </p>
-
-              {!submitted ? (
-                <button
-                  onClick={handleSubmitScore}
-                  className="ml-2 bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  Submit
-                </button>
-              ) : (
-                <button
-                  onClick={resetGame}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  Play Again
-                </button>
-              )}
-            </div>
-
-            <Leaderboard
-                      leaderboard={leaderboard}
-                      lastSubmittedPlayer={lastSubmittedPlayer}
-                    />
-          </>
+              </div>
+            )}
+          </div>
         )}
-
       </div>
+
+      {leaderboard.length > 0 && (
+        <div className="leaderboard-container">
+          <h3>Leaderboard</h3>
+          <ul className="leaderboard-list">
+            {leaderboard.map((entry, index) => {
+              const isUser =
+                lastSubmittedPlayer?.username === entry.username &&
+                lastSubmittedPlayer?.score === entry.score;
+              return (
+                <li
+                  key={index}
+                  className={`leaderboard-item ${getRankClass(index)} ${
+                    isUser ? "highlighted" : ""
+                  }`}
+                >
+                  <span>{index + 1}. {entry.username}</span>
+                  <span>{entry.score} points</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

@@ -101,19 +101,6 @@ export default function ButtonMasherPage() {
       <Header/>
 
       <div className="buttonmasher-container">
-        {/* <div className="duration-buttons">
-          {[10, 30, 60].map((d) => (
-            <button
-              key={d}
-              className={`duration-button ${duration === d ? "active" : ""}`}
-              onClick={() => setDuration(d)}
-              disabled={gameStarted}
-            >
-              {d === 60 ? "1 minute" : `${d} seconds`}
-            </button>
-          ))}
-        </div> */}
-
         <div className="game-box">
           {!gameOver ? (
             <>

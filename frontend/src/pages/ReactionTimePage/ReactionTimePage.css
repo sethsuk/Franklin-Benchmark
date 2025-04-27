@@ -16,7 +16,7 @@ html, body {
 }
 
 .reaction-box.waiting {
-  background-color: #a3c9ff;
+  background-color: #4D88F9;
   color: #222;
 }
 
@@ -27,6 +27,11 @@ html, body {
 
 .reaction-box.clicked {
   background-color: #7AC74F;
+  color: #fff;
+}
+
+.reaction-box.too_soon {
+  background-color: #B34343;
   color: #fff;
 }
 
@@ -57,7 +62,7 @@ html, body {
 
 .click-start {
   font-size: 14px;
-  color: #2d52a3;
+  color: white;
   margin-top: 12px;
   font-weight: 600;
 }
@@ -142,22 +147,28 @@ html, body {
   background-color: #3a6fdb;
 }
 
-.leaderboard-card {
-  background-color: #ffffff;
+.leaderboard-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.leaderboard-container {
+  background-color: white;
   border-radius: 12px;
-  padding: 20px 24px;
-  margin: 75px auto 0;
-  width: 420px;
-  max-width: 90%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  margin: 30px auto;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: 'Montserrat', sans-serif;
 }
 
-.leaderboard-card h3 {
+.leaderboard-container h3 {
+  margin-bottom: 16px;
   font-size: 22px;
-  font-weight: 700;
-  color: #0d1a73;
-  margin-bottom: 20px;
+  color: #102770;
+  text-align: center;
 }
 
 .leaderboard-list {
@@ -166,86 +177,78 @@ html, body {
   margin: 0;
 }
 
-.ranked-item {
+.leaderboard-item {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
   font-size: 16px;
-  transition: all 0.2s ease;
+  color: #1b2f87;
+  background-color: white;
+  border: 1px solid #e0e0e0;
 }
 
-.rank-1 {
-  background-color: #fff5cc;
-  border: 2px solid #ffe36e;
+.leaderboard-item.rank-1 {
+  background-color: #fff4c2;
+  border: 2px solid #f3c14f;
 }
 
-.rank-2 {
-  background-color: #e6e6e6;
-  border: 2px solid #d1d1d1;
+.leaderboard-item.rank-2 {
+  background-color: #f2f2f2;
+  border: 2px solid #ccc;
 }
 
-.rank-3 {
-  background-color: #fde2c2;
-  border: 2px solid #ffc27a;
+.leaderboard-item.rank-3 {
+  background-color: #fde6c8;
+  border: 2px solid #e3a55c;
 }
 
-.highlighted-username {
-  color: #247ee9;
-  font-weight: 700;
-}
-
-.ranked-item.highlighted-row {
-  background-color: #e8f1ff !important;
-  border: 2px solid #247ee9;
+.leaderboard-item.highlighted {
+  font-weight: bold;
+  border: 2px solid #4d8af0;
 }
 
 .rank-number {
+  width: 30px;
+  text-align: left;
   font-weight: bold;
-  color: #222;
-  margin-right: 10px;
 }
 
 .player-name {
   flex: 1;
-  text-align: left;
-  padding-left: 10px;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.highlighted-username {
+  color: #4d8af0;
 }
 
 .score {
-  font-weight: 700;
-  color: #1a1a1a;
+  width: 100px;
+  text-align: right;
+  font-weight: 600;
 }
 
-.reaction-page-wrapper {
-  min-height: 100vh;
+.reaction-text {
+  color: white;
+}
+
+.too-soon-text {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
-.submission-container p {
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 24px; /* <-- add spacing below the text */
-}
-
-.submission-container .submit-button {
-  margin: 0 auto;
-  padding: 12px 28px;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 32px;
-  background-color: #4D88F9;
+.main-text {
+  font-size: 2rem;
+  font-weight: bold;
   color: white;
-  border: none;
-  cursor: pointer;
-  display: inline-block;
-  transition: background-color 0.2s ease;
 }
 
-.submission-container .submit-button:hover {
-  background-color: #3a6fdb;
+.sub-text {
+  font-size: 1rem;
+  color: white;
+  margin-top: 0.5rem;
 }

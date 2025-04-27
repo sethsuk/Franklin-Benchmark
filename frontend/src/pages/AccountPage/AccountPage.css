@@ -1,74 +1,71 @@
 .dashboard-wrapper {
-    font-family: 'Montserrat', sans-serif;
-    background-color: #f5faff;
-  }
-  
-  .profile-card {
-    background-color: #bcd6ff;
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 30px;
-  }
-  
-  .avatar {
-    width: 80px;
-    height: 80px;
-    background-color: #333;
-    border-radius: 12px;
-  }
-  
-  .profile-info h2 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-  }
-  
-  .profile-info p {
-    font-size: 14px;
-    color: #444;
-  }
-  
-  .leaderboard-section {
-    background-color: #bcd6ff;
-    border-radius: 16px;
-    padding: 24px;
-  }
-  
-  .leaderboard-section h3 {
-    margin-bottom: 16px;
-    font-size: 20px;
-    font-weight: 700;
-  }
-  
-  .leaderboard-row {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    align-items: center;
-    background-color: white;
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
-  
-  .game-name {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .game-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-  }
-  
-  .game-name {
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-  }  
+  font-family: 'Montserrat', sans-serif;
+  background-color: #4D88F9;
+  min-height: 100vh;
+}
+
+.profile-card {
+  background-color: #bcd6ff;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 24px;
+  width: 100%;
+  max-width: 800px;
+  margin: 80px auto 30px;
+}
+
+.leaderboard-section {
+  background-color: #bcd6ff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 800px;
+  margin: 30px auto 0;
+}
+
+.leaderboard-section h3 {
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.game-name {
+  flex: 2;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score {
+  flex: 1;
+  text-align: left;
+}
+
+.rank {
+  flex: 1;
+  text-align: right;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+.game-icon {
+  width: 24px;
+  height: 24px;
+}
