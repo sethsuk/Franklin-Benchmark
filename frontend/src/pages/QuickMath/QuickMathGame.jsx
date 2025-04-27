@@ -125,7 +125,7 @@ export default function QuickMathGame() {
 
   const resetGame = () => {
     setGameStarted(false);
-    setTimeLeft(20);
+    setTimeLeft(120);
     setScore(0);
     setInput("");
     setSubmitted(false);
@@ -137,7 +137,7 @@ export default function QuickMathGame() {
 
   const handleStart = () => {
     setGameStarted(true);
-    setTimeLeft(20);
+    setTimeLeft(120);
     setScore(0);
     setInput("");
     setSubmitted(false);
