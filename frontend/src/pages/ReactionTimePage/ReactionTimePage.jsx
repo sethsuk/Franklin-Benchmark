@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import Header from "../../components/Header/Header";
 import { AuthContext } from "../../context/AuthContext";
+import API_BASE_URL from "../../config/api";
 import "./ReactionTimePage.css";
 
 const GAME_STATES = {
@@ -48,7 +49,7 @@ export default function ReactionTimePage() {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await fetch("http://localhost:5000/reaction/leaderboard");
+      const res = await fetch(`${API_BASE_URL}/reaction/leaderboard`);
       const data = await res.json();
       setLeaderboard(data.leaderboard || []);
     } catch (err) {
@@ -97,7 +98,7 @@ export default function ReactionTimePage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/reaction/record-time", {
+      const res = await fetch(`${API_BASE_URL}/reaction/record-time`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

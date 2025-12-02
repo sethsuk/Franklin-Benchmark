@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import Header from "../../components/Header/Header";
 import { AuthContext } from "../../context/AuthContext";
+import API_BASE_URL from "../../config/api";
 
 import "./ButtonMasher.css";
 import { ReactComponent as MashButtonSVG } from "./BUTTON.svg";
@@ -27,7 +28,7 @@ export default function ButtonMasherPage() {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await fetch("http://localhost:5000/masher/leaderboard");
+      const res = await fetch(`${API_BASE_URL}/masher/leaderboard`);
       const data = await res.json();
       setLeaderboard(data.leaderboard || []);
     } catch (err) {
@@ -78,7 +79,7 @@ export default function ButtonMasherPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/masher/record-mashes", {
+      const res = await fetch(`${API_BASE_URL}/masher/record-mashes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, mashes: clickCount }),

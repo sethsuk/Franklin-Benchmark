@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import Header from "../../components/Header/Header";
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config/api';
 import './AccountPage.css';
 
 import { ReactComponent as QuickMathIcon } from './QuickMathIcon.svg';
@@ -28,10 +29,10 @@ const AccountPage = () => {
     const fetchData = async () => {
       try {
         const [ageData, masher, reaction, math] = await Promise.all([
-          fetch(`http://localhost:5000/user/account-age/${username}`).then((res) => res.json()),
-          fetch(`http://localhost:5000/masher/user-rank/${username}`).then((res) => res.json()),
-          fetch(`http://localhost:5000/reaction/user-rank/${username}`).then((res) => res.json()),
-          fetch(`http://localhost:5000/math/user-rank/${username}`).then((res) => res.json()),
+          fetch(`${API_BASE_URL}/user/account-age/${username}`).then((res) => res.json()),
+          fetch(`${API_BASE_URL}/masher/user-rank/${username}`).then((res) => res.json()),
+          fetch(`${API_BASE_URL}/reaction/user-rank/${username}`).then((res) => res.json()),
+          fetch(`${API_BASE_URL}/math/user-rank/${username}`).then((res) => res.json()),
         ]);
 
         setAccountAge(ageData.account_age);

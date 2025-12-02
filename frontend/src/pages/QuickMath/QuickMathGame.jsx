@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import API_BASE_URL from "../../config/api";
 import "./QuickMath.css";
 
 function generateQuestion() {
@@ -50,7 +51,7 @@ export default function QuickMathGame() {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await fetch("http://localhost:5000/math/leaderboard");
+      const res = await fetch(`${API_BASE_URL}/math/leaderboard`);
       const data = await res.json();
       setLeaderboard(data.leaderboard || []);
     } catch (err) {
@@ -99,7 +100,7 @@ export default function QuickMathGame() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/math/record-score", {
+      const res = await fetch(`${API_BASE_URL}/math/record-score`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
