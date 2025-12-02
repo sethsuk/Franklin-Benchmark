@@ -2,21 +2,10 @@ const pool = require('./db');
 
 async function initializeDatabase() {
     try {
-        // await pool.query(`
-        //    CREATE TABLE IF NOT EXISTS users (
-        //         id SERIAL PRIMARY KEY,
-        //         google_id VARCHAR(255) UNIQUE NOT NULL,
-        //         username VARCHAR(255) UNIQUE NOT NULL,
-        //         email VARCHAR(255) UNIQUE NOT NULL,
-        //         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        //    ) 
-        // `);
-
+        // Users table - simple username-only authentication
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
-                 google_id VARCHAR(255) PRIMARY KEY,
-                 username VARCHAR(255) UNIQUE NOT NULL,
-                 email VARCHAR(255) UNIQUE NOT NULL,
+                 username VARCHAR(255) PRIMARY KEY,
                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) 
          `);

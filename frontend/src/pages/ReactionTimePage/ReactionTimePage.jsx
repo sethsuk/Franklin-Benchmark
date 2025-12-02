@@ -12,7 +12,7 @@ const GAME_STATES = {
 };
 
 export default function ReactionTimePage() {
-  const { token, userData } = useContext(AuthContext);
+  const { username } = useContext(AuthContext);
 
   const [gameState, setGameState] = useState(GAME_STATES.WAITING);
   const [reactionTime, setReactionTime] = useState(null);
@@ -25,7 +25,7 @@ export default function ReactionTimePage() {
   const timeoutIdRef = useRef(null);
   const [startTime, setStartTime] = useState(0);
 
-  const [loginPrompt, setLoginPrompt] = useState(false);
+  const [usernamePrompt, setUsernamePrompt] = useState(false);
 
   useEffect(() => { fetchLeaderboard(); }, []);
 
@@ -90,9 +90,9 @@ export default function ReactionTimePage() {
   };
 
   const handleSubmit = async () => {
-    if (!token) {
-      setLoginPrompt(true);
-      setTimeout(() => setLoginPrompt(false), 3000);
+    if (!username) {
+      setUsernamePrompt(true);
+      setTimeout(() => setUsernamePrompt(false), 3000);
       return;
     }
 
@@ -101,9 +101,8 @@ export default function ReactionTimePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ reactionTime }),
+        body: JSON.stringify({ username, reactionTime }),
       });
 
       if (res.ok) {
@@ -138,9 +137,9 @@ export default function ReactionTimePage() {
             Submit Score
           </button>
 
-          {loginPrompt && (
+          {usernamePrompt && (
             <p className="login-prompt-inline">
-              Please <strong>log in</strong> to submit your score.
+              Please <strong>set a username</strong> to submit your score.
             </p>
           )}
         </>
@@ -192,7 +191,7 @@ export default function ReactionTimePage() {
       <ul className="leaderboard-list">
         {leaderboard.length === 0 && <p>No scores yet.</p>}
         {leaderboard.map((player, idx) => {
-          const isYou = userData && player.username === userData.username;
+          const isYou = username && player.username === username;
           return (
             <li
               key={idx}

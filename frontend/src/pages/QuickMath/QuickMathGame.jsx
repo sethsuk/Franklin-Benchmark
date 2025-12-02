@@ -32,8 +32,8 @@ function generateQuestion() {
 }
 
 export default function QuickMathGame() {
-  const { token, userData } = useContext(AuthContext);
-  const [loginPrompt, setLoginPrompt] = useState(false);
+  const { username } = useContext(AuthContext);
+  const [usernamePrompt, setUsernamePrompt] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState(120);
   const [score, setScore] = useState(0);
@@ -92,9 +92,9 @@ export default function QuickMathGame() {
   };
 
   const handleSubmitScore = async () => {
-    if (!token) {
-      setLoginPrompt(true);
-      setTimeout(() => setLoginPrompt(false), 3000);
+    if (!username) {
+      setUsernamePrompt(true);
+      setTimeout(() => setUsernamePrompt(false), 3000);
       return;
     }
 
@@ -103,15 +103,14 @@ export default function QuickMathGame() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ score }),
+        body: JSON.stringify({ username, score }),
       });
 
       if (res.ok) {
         const { highScore, rank } = await res.json();
         setSubmitted(true);
-        setLastSubmittedPlayer({ username: userData.username, score });
+        setLastSubmittedPlayer({ username, score });
         setHighScore(highScore);
         setRank(rank);
         fetchLeaderboard();
@@ -205,9 +204,9 @@ export default function QuickMathGame() {
                       Submit
                     </button>
 
-                    {loginPrompt && (
+                    {usernamePrompt && (
                       <p className="login-prompt-inline">
-                        Please <strong>log in</strong> to submit your score.
+                        Please <strong>set a username</strong> to submit your score.
                       </p>
                     )}
                   </>

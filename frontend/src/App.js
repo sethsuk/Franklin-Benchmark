@@ -7,13 +7,10 @@ import ButtonMasherPage from './pages/ButtonMasher/ButtonMasherPage';
 import QuickMathPage from './pages/QuickMath/QuickMathPage';
 import Header from './components/Header/Header';
 import AccountPage from './pages/AccountPage/AccountPage';
-import UsernameModal from './components/UsernameModal/UsernameModal';
 
 function App() {
   return (
     <AuthProvider>
-      {/* <Header /> */}
-      <UsernameModal />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/reaction-time" element={<ReactionTimePage />} />

@@ -1,29 +1,11 @@
 const express = require('express');
 const pool = require('../config/db.js');
-const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
-// Middleware to verify JWT tokens
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    // null token
-    if (!token) return res.sendStatus(401);
-
-    // verify token
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-
-        req.user = user; // userId and username will be available
-        next();
-    });
-};
-
 // Returns the top 10 math scores to beat
 router.get('/leaderboard', async (req, res) => {
-    console.log("\n\Math Leaderboard Called");
+    console.log("\n\nMath Leaderboard Called");
 
     try {
         const results = await pool.query(`
@@ -43,19 +25,24 @@ router.get('/leaderboard', async (req, res) => {
 
 // Record game session. Frontend calculates the number of problems solved
 // Takes in username and math score
-router.post('/record-score', authenticateToken, async (req, res) => {
+router.post('/record-score', async (req, res) => {
     console.log("\n\nMath Score Recorded", req.body);
 
-    const username = req.user.username;
-    const { score } = req.body;
+    const { username, score } = req.body;
     let userRank = null;
 
     if (!username || score === undefined) {
-        res.status(400).json({ message: 'Username and score are required.' });
+        return res.status(400).json({ message: 'Username and score are required.' });
     }
 
     try {
-        // Add user's time to DB
+        // Ensure user exists (create if not)
+        await pool.query(`
+            INSERT INTO users (username) VALUES ($1)
+            ON CONFLICT (username) DO NOTHING;
+        `, [username]);
+
+        // Add user's score to DB
         await pool.query(`
             INSERT INTO math_scores (username, score) VALUES ($1, $2) 
             ON CONFLICT (username) 
@@ -87,11 +74,11 @@ router.post('/record-score', authenticateToken, async (req, res) => {
     }
 });
 
-// GET endpoint => returns highscore and rank
-router.get('/user-rank', authenticateToken, async (req, res) => {
+// GET endpoint => returns highscore and rank for a username
+router.get('/user-rank/:username', async (req, res) => {
     console.log("\n\nMath User Rank Called");
 
-    const username = req.user.username;
+    const { username } = req.params;
 
     try {
         const highScoreResults = await pool.query(`

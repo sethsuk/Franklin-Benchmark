@@ -6,7 +6,7 @@ import "./ButtonMasher.css";
 import { ReactComponent as MashButtonSVG } from "./BUTTON.svg";
 
 export default function ButtonMasherPage() {
-  const { token, userData } = useContext(AuthContext);
+  const { username } = useContext(AuthContext);
 
   // const [duration, setDuration] = useState(10);
   const [clickCount, setClickCount] = useState(0);
@@ -23,7 +23,7 @@ export default function ButtonMasherPage() {
   const [rank, setRank] = useState(-1);
   const [lastSubmittedPlayer, setLastSubmittedPlayer] = useState(null);
 
-  const [loginPrompt, setLoginPrompt] = useState(false);
+  const [usernamePrompt, setUsernamePrompt] = useState(false);
 
   const fetchLeaderboard = async () => {
     try {
@@ -71,23 +71,23 @@ export default function ButtonMasherPage() {
   };
 
   const handleSubmit = async () => {
-    if (!token) {
-      setLoginPrompt(true);
-      setTimeout(() => setLoginPrompt(false), 3000);
+    if (!username) {
+      setUsernamePrompt(true);
+      setTimeout(() => setUsernamePrompt(false), 3000);
       return;
     }
 
     try {
       const res = await fetch("http://localhost:5000/masher/record-mashes", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ mashes: clickCount }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, mashes: clickCount }),
       });
 
       if (res.ok) {
         const data = await res.json();
         setSubmitted(true);
-        setLastSubmittedPlayer({ username: userData.username, mashes: clickCount });
+        setLastSubmittedPlayer({ username, mashes: clickCount });
         setHighScore(data.highScore);
         setRank(data.rank);
         fetchLeaderboard();
@@ -145,9 +145,9 @@ export default function ButtonMasherPage() {
                     Submit
                   </button>
 
-                  {loginPrompt && (
+                  {usernamePrompt && (
                     <p className="login-prompt-inline">
-                      Please <strong>log in</strong> to submit your score.
+                      Please <strong>set a username</strong> to submit your score.
                     </p>
                   )}
                 </>

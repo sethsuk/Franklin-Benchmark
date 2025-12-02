@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Header from "../../components/Header/Header";
 import { AuthContext } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import './AccountPage.css';
 
 import { ReactComponent as QuickMathIcon } from './QuickMathIcon.svg';
@@ -15,21 +16,22 @@ const AccountPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { token, userData } = useContext(AuthContext);
+  const { username } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!username) {
+      navigate('/');
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        const fetchWithAuth = (url) =>
-          fetch(url, {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then((res) => res.json());
-
         const [ageData, masher, reaction, math] = await Promise.all([
-          fetchWithAuth("http://localhost:5000/user/account-age"),
-          fetchWithAuth("http://localhost:5000/masher/user-rank"),
-          fetchWithAuth("http://localhost:5000/reaction/user-rank"),
-          fetchWithAuth("http://localhost:5000/math/user-rank"),
+          fetch(`http://localhost:5000/user/account-age/${username}`).then((res) => res.json()),
+          fetch(`http://localhost:5000/masher/user-rank/${username}`).then((res) => res.json()),
+          fetch(`http://localhost:5000/reaction/user-rank/${username}`).then((res) => res.json()),
+          fetch(`http://localhost:5000/math/user-rank/${username}`).then((res) => res.json()),
         ]);
 
         setAccountAge(ageData.account_age);
@@ -45,7 +47,7 @@ const AccountPage = () => {
     };
 
     fetchData();
-  }, [token]);
+  }, [username, navigate]);
 
   if (loading) return <p>Loading account data...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -56,8 +58,8 @@ const AccountPage = () => {
 
       <div className="profile-card">
         <div className="profile-info">
-          <h2>{userData?.username || "User"}</h2>
-          <p>Joined {accountAge} day{accountAge !== 1 ? "s" : ""} ago</p>
+          <h2>{username || "User"}</h2>
+          {accountAge !== null && <p>Joined {accountAge} day{accountAge !== 1 ? "s" : ""} ago</p>}
         </div>
       </div>
 

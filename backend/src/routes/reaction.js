@@ -1,29 +1,11 @@
 const express = require('express');
 const pool = require('../config/db.js');
-const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
-// Middleware to verify JWT tokens
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    // null token
-    if (!token) return res.status(401).json({ message: "Not logged in" });
-
-    // verify token
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ message: "Invalid token" });
-
-        req.user = user; // userId and username will be available
-        next();
-    });
-};
-
 // Retrieves Leaderboard. Returns the top 10 times to beat
 router.get('/leaderboard', async (req, res) => {
-    console.log("\n\Masher Leaderboard Called");
+    console.log("\n\nReaction Leaderboard Called");
 
     try {
         const results = await pool.query('SELECT username, reaction_time AS "reactionTime" FROM reaction_scores ORDER BY reaction_time, time LIMIT 10;');
@@ -38,19 +20,23 @@ router.get('/leaderboard', async (req, res) => {
 
 // Record game session. Frontend calculates the reaction time
 // Takes in username and reaction time
-router.post('/record-time', authenticateToken, async (req, res) => {
+router.post('/record-time', async (req, res) => {
     console.log("\n\nReaction Game Recorded", req.body);
 
-    const { reactionTime } = req.body;
+    const { username, reactionTime } = req.body;
     let userRank = null;
 
-    if (!reactionTime) {
-        res.status(400).json({ message: 'Reaction time are required.' });
+    if (!username || !reactionTime) {
+        return res.status(400).json({ message: 'Username and reaction time are required.' });
     }
 
-    const username = req.user.username;
-
     try {
+        // Ensure user exists (create if not)
+        await pool.query(`
+            INSERT INTO users (username) VALUES ($1)
+            ON CONFLICT (username) DO NOTHING;
+        `, [username]);
+
         // Add user's time to DB
         await pool.query(`
             INSERT INTO reaction_scores (username, reaction_time) VALUES ($1, $2) 
@@ -83,11 +69,11 @@ router.post('/record-time', authenticateToken, async (req, res) => {
     }
 });
 
-// GET endpoint => returns highscore and rank
-router.get('/user-rank', authenticateToken, async (req, res) => {
+// GET endpoint => returns highscore and rank for a username
+router.get('/user-rank/:username', async (req, res) => {
     console.log("\n\nReaction User Rank Called");
 
-    const username = req.user.username;
+    const { username } = req.params;
 
     try {
         const highScoreResults = await pool.query(`

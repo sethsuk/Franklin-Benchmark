@@ -1,139 +1,75 @@
 const express = require('express');
 const pool = require('../config/db.js');
-const { OAuth2Client } = require('google-auth-library');
-const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
-const client_id = process.env.CLIENT_ID;
 const router = express.Router();
-const client = new OAuth2Client(client_id);
 
-// POST endpoint => authenticate the user
-router.post('/auth/google', async (req, res) => {
-    console.log('\n\nAuth Google Called');
+// POST endpoint => register or get user by username
+router.post('/register', async (req, res) => {
+    console.log('\n\nRegister Username Called');
 
-    const { idToken } = req.body;
+    const { username } = req.body;
 
-    try {
-        // Validing user's idToken with Google OAuth2
-        const ticket = await client.verifyIdToken({
-            idToken,
-            audience: client_id,
-        });
-
-        const { email, sub: google_id } = ticket.getPayload();
-
-        // Checks if user is in the db
-        const userQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
-
-        if (userQuery.rows.length > 0) {
-            // User exists
-            const user = userQuery.rows[0];
-
-            const token = jwt.sign(
-                { google_id: user.google_id, username: user.username },
-                process.env.JWT_SECRET,
-                { expiresIn: '7d' }
-            );
-
-            res.json({ status: 'existing_user', user, token });
-        } else {
-            // New user
-            const token = jwt.sign(
-                { google_id, email },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' }
-            );
-
-            res.json({ status: 'new_user', user: { google_id, email, username: null, id: null }, token });
-        }
-
-    } catch (err) {
-        console.error(err);
-        res.status(401).json({ message: 'Invalid Google token' });
+    if (!username || username.trim() === '') {
+        return res.status(400).json({ message: 'Username is required' });
     }
-});
 
-// POST endpoint => register new user in DB
-router.post('/auth/register-username', async (req, res) => {
-    console.log('\n\nRegister-username Called');
-
-    const { google_id, username, email } = req.body;
+    const trimmedUsername = username.trim();
 
     try {
-        // Validate unique username
-        const usernameQuery = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        // Check if username already exists
+        const existingUser = await pool.query('SELECT * FROM users WHERE username = $1', [trimmedUsername]);
 
-        if (usernameQuery.rows.length > 0) {
-            console.log('\n\nUsername already taken');
-            return res.status(409).json({ message: 'Username already taken' });
+        if (existingUser.rows.length > 0) {
+            // User exists, return the user
+            const user = existingUser.rows[0];
+            return res.json({ status: 'existing_user', user });
         }
 
-        // Validate unique google_id
-        const googleIdQuery = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
-
-        if (googleIdQuery.rows.length > 0) {
-            console.log('\n\ngoogle_id already exists');
-            return res.status(409).json({ message: 'google_id already exists' });
-        }
-
-        // Insert new user to DB
+        // Create new user
         const newUserQuery = await pool.query(
-            'INSERT INTO users (google_id, username, email) VALUES ($1, $2, $3) RETURNING *',
-            [google_id, username, email]
+            'INSERT INTO users (username) VALUES ($1) RETURNING *',
+            [trimmedUsername]
         );
 
         const newUser = newUserQuery.rows[0];
-
-        const token = jwt.sign(
-            { google_id: newUser.google_id, username: newUser.username },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-      
-        res.status(201).json({ message: 'User created successfully', user: newUser, token });
+        res.status(201).json({ status: 'new_user', user: newUser });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Database error' });
     }
 });
 
-// Middleware to verify JWT tokens
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+// GET endpoint => check if username exists
+router.get('/check/:username', async (req, res) => {
+    const { username } = req.params;
 
-    // null token
-    if (!token) return res.sendStatus(401);
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
-    // verify token
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-
-        req.user = user; // userId and username will be available
-        next();
-    });
-};
-
-// GET endpoint => checks if the user is valid and verified
-router.get('/verify', authenticateToken, (req, res) => {
-    res.json({ message: 'User verified', user: req.user });
+        if (result.rows.length > 0) {
+            res.json({ exists: true, user: result.rows[0] });
+        } else {
+            res.json({ exists: false });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Database error' });
+    }
 });
 
 // GET endpoint => returns how old the account is in days
-router.get('/account-age', authenticateToken, async (req, res) => {
+router.get('/account-age/:username', async (req, res) => {
     try {
-        const google_id = req.user.google_id;
+        const { username } = req.params;
 
         // queries DB to find the user's account age
         const result = await pool.query(`
             SELECT (CURRENT_DATE - created_at::date) AS account_age
             FROM users
-            WHERE google_id = $1
-            `, [google_id]);
-
-        console.log(google_id);
+            WHERE username = $1
+            `, [username]);
 
         // No result from DB
         if (result.rows.length === 0) {
