@@ -6,12 +6,9 @@ import './Header.css';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { username, setUsername, logout, loading } = useContext(AuthContext);
+    const { username, setUsername, logout } = useContext(AuthContext);
     const [inputUsername, setInputUsername] = useState('');
     const [showInput, setShowInput] = useState(false);
-
-    // Show loading indicator while verifying
-    if (loading) return <div>Loading...</div>;
 
     const handleLogout = () => {
         logout();

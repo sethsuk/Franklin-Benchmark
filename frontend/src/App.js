@@ -5,7 +5,6 @@ import HomePage from './pages/HomePage/HomePage';
 import ReactionTimePage from './pages/ReactionTimePage/ReactionTimePage';
 import ButtonMasherPage from './pages/ButtonMasher/ButtonMasherPage';
 import QuickMathPage from './pages/QuickMath/QuickMathPage';
-import Header from './components/Header/Header';
 import AccountPage from './pages/AccountPage/AccountPage';
 
 function App() {
