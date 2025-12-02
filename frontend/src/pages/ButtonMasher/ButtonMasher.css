@@ -72,6 +72,10 @@ body, html {
     text-align: center;
     width: 100%;
     max-width: 600px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
   
   .instruction {
