@@ -14,6 +14,23 @@ Franklin Benchmark is a React-based web application featuring a suite of mini-ga
 * **Real-Time Leaderboards**: Scores are recorded via secure API calls, and leaderboards refresh automatically after each submission.
 * **Responsive UI**: Styled with Montserrat font, soft color palette, and consistent component design for a seamless user experience.
 
+## Deployment Overview
+
+Franklin Benchmark has been deployed to AWS using a modern cloud infrastructure:
+
+- **Frontend**: React application hosted on S3 as a static website
+- **Backend**: Express.js API running in a Docker container on EC2
+- **Database**: PostgreSQL on AWS RDS for persistent data storage
+- **Registry**: Docker images managed through AWS ECR
+
+The deployment is fully automated with shell scripts for building, pushing, and deploying updates. Infrastructure is managed through AWS services, allowing for scalable and reliable hosting. For detailed deployment instructions, refer to the Deployment Guide section.
+
+**Infrastructure:**
+- AWS EC2 (compute)
+- AWS RDS (database)
+- AWS S3 (static hosting)
+- AWS ECR (container registry)
+
 ## Getting Started
 
 These instructions will help you clone, install dependencies, and run Franklin Benchmark locally.
@@ -55,7 +72,6 @@ These instructions will help you clone, install dependencies, and run Franklin B
 
    The app will be available at `http://localhost:3000`.
 
----
 
 # Deployment Guide
 

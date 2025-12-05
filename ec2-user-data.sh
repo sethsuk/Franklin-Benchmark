@@ -66,7 +66,7 @@ echo "$(date): Stopping any existing container..."
 docker stop franklin-backend 2>/dev/null || true
 docker rm franklin-backend 2>/dev/null || true
 
-# Run backend container
+# Run backend container with environment variables
 echo "$(date): Starting backend container..."
 docker run -d \
     --name franklin-backend \

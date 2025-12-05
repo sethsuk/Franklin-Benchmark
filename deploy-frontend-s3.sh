@@ -24,6 +24,7 @@ npm install
 npm run build
 cd ..
 
+# Error handling in case build fails
 if [ ! -d "frontend/build" ]; then
     echo "Error: Build failed. No build directory found."
     exit 1
@@ -40,12 +41,12 @@ aws s3 sync ./frontend/build "s3://${S3_BUCKET_NAME}" \
     --exclude "index.html" \
     --exclude "*.json"
 
-# Upload index.html with no cache
+# Upload index.html with no cache to prevent stale content
 aws s3 cp ./frontend/build/index.html "s3://${S3_BUCKET_NAME}/index.html" \
     --cache-control "no-cache,no-store,must-revalidate" \
     --content-type "text/html"
 
-# Upload manifest.json with no cache
+# Upload manifest.json with no cache to prevent stale content
 aws s3 cp ./frontend/build/manifest.json "s3://${S3_BUCKET_NAME}/manifest.json" \
     --cache-control "no-cache,no-store,must-revalidate" \
     --content-type "application/json"

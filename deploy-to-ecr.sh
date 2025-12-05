@@ -21,12 +21,6 @@ echo ""
 echo "Logging into AWS ECR..."
 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
 
-# Create ECR repository (if it doesn't exist)
-echo ""
-echo "Creating ECR repository..."
-aws ecr describe-repositories --repository-names ${ECR_BACKEND_REPO} --region ${AWS_REGION} 2>/dev/null || \
-    aws ecr create-repository --repository-name ${ECR_BACKEND_REPO} --region ${AWS_REGION}
-
 # Build Docker image for linux/amd64 (EC2 compatible)
 echo ""
 echo "Building backend Docker image for linux/amd64..."
